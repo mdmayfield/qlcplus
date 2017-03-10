@@ -664,7 +664,7 @@ void App::initActions()
     /* Control actions */
     m_modeToggleAction = new QAction(QIcon(":/operate.png"), tr("&Operate"), this);
     m_modeToggleAction->setToolTip(tr("Switch to operate mode"));
-    m_modeToggleAction->setShortcut(QKeySequence(tr("CTRL+F12", "Control|Toggle operate/design mode")));
+    m_modeToggleAction->setShortcut(QKeySequence(tr("CTRL+T", "Control|Toggle operate/design mode"))); //was ctrl+f12
     connect(m_modeToggleAction, SIGNAL(triggered(bool)), this, SLOT(slotModeToggle()));
 
     m_controlMonitorAction = new QAction(QIcon(":/monitor.png"), tr("&Monitor"), this);
@@ -689,7 +689,7 @@ void App::initActions()
     m_liveEditVirtualConsoleAction->setEnabled(false);
 
     m_dumpDmxAction = new QAction(QIcon(":/add_dump.png"), tr("Dump DMX values to a function"), this);
-    m_dumpDmxAction->setShortcut(QKeySequence(tr("CTRL+D", "Control|Dump DMX")));
+    m_dumpDmxAction->setShortcut(QKeySequence(tr("CTRL+Shift+D", "Control|Dump DMX"))); // so as not to collide with Ctrl-D for Duplicate
     connect(m_dumpDmxAction, SIGNAL(triggered()), this, SLOT(slotDumpDmxIntoFunction()));
 
     m_controlPanicAction = new QAction(QIcon(":/panic.png"), tr("Stop ALL functions!"), this);

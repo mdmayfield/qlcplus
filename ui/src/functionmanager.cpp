@@ -321,7 +321,7 @@ void FunctionManager::initActions()
     /* Edit actions */
     m_cloneAction = new QAction(QIcon(":/editcopy.png"),
                                 tr("&Clone"), this);
-    m_cloneAction->setShortcut(QKeySequence("CTRL+Shift+D")); // D for Duplicate - standard in many OSes/apps
+    m_cloneAction->setShortcut(QKeySequence("CTRL+D")); // Duplicate
     connect(m_cloneAction, SIGNAL(triggered(bool)),
             this, SLOT(slotClone()));
 
