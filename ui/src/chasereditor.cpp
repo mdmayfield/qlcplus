@@ -1058,8 +1058,8 @@ void ChaserEditor::slotModeChanged(Doc::Mode mode)
 {
     if (mode == Doc::Operate)
     {
-        m_testPlayButton->setEnabled(false);
-        m_testStopButton->setEnabled(false);
+//        m_testPlayButton->setEnabled(false); // Commenting these out to allow preview while in Live view
+//        m_testStopButton->setEnabled(false);
         if (m_liveMode == false)
             m_chaser->stop(functionParent());
     }

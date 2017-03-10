@@ -916,7 +916,7 @@ void RGBMatrixEditor::slotModeChanged(Doc::Mode mode)
         if (m_testButton->isChecked() == true)
             m_matrix->stopAndWait();
         m_testButton->setChecked(false);
-        m_testButton->setEnabled(false);
+//        m_testButton->setEnabled(false); // Commenting this out to allow previewing while in Live mode
     }
     else
     {
