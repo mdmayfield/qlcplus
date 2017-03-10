@@ -86,14 +86,16 @@ SceneEditor::SceneEditor(QWidget* parent, Scene* scene, Doc* doc, bool applyValu
     // Start new (==empty) scenes from the first tab and ones with something in them
     // on the first fixture page.
     if (m_tab->count() == 0)
+    {
         slotTabChanged(KTabGeneral);
+    }
     else
         m_tab->setCurrentIndex(sceneUiState()->currentTab());
 
     m_initFinished = true;
 
     // Set focus to the editor
-    m_nameEdit->setFocus();
+    // m_nameEdit->setFocus(); // This seems to cause more harm than good
 }
 
 SceneEditor::~SceneEditor()

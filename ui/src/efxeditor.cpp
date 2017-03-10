@@ -102,7 +102,7 @@ EFXEditor::EFXEditor(QWidget* parent, EFX* efx, Doc* doc)
     updateSpeedDials();
 
     // Set focus to the editor
-    m_nameEdit->setFocus();
+    // m_nameEdit->setFocus();
 }
 
 EFXEditor::~EFXEditor()

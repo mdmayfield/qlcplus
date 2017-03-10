@@ -61,7 +61,7 @@ CollectionEditor::CollectionEditor(QWidget* parent, Collection* fc, Doc* doc)
     updateFunctionList();
 
     // Set focus to the editor
-    m_nameEdit->setFocus();
+    // m_nameEdit->setFocus();
 }
 
 CollectionEditor::~CollectionEditor()

@@ -107,7 +107,7 @@ AudioEditor::AudioEditor(QWidget* parent, Audio *audio, Doc* doc)
             this, SLOT(slotAudioDeviceChanged(int)));
 
     // Set focus to the editor
-    m_nameEdit->setFocus();
+    // m_nameEdit->setFocus();
 }
 
 AudioEditor::~AudioEditor()

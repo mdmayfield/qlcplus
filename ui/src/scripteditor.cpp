@@ -72,7 +72,7 @@ ScriptEditor::ScriptEditor(QWidget* parent, Script* script, Doc* doc)
     connect(m_script, SIGNAL(stopped(quint32)), this, SLOT(slotFunctionStopped(quint32)));
 
     // Set focus to the editor
-    m_nameEdit->setFocus();
+    // m_nameEdit->setFocus();
 }
 
 ScriptEditor::~ScriptEditor()

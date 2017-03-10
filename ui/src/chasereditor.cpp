@@ -233,7 +233,7 @@ ChaserEditor::ChaserEditor(QWidget* parent, Chaser* chaser, Doc* doc, bool liveM
     slotModeChanged(m_doc->mode());
 
     // Set focus to the editor
-    m_nameEdit->setFocus();
+    // m_nameEdit->setFocus();
 
     m_testPreviousButton->setEnabled(false);
     m_testNextButton->setEnabled(false);
