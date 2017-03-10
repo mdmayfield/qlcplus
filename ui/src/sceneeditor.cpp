@@ -168,6 +168,7 @@ void SceneEditor::init(bool applyValues)
                                     tr("Switch between tab view and all channels view"), this);
     m_blindAction = new QAction(QIcon(":/blind.png"),
                                 tr("Toggle blind mode"), this);
+    m_blindAction->setShortcut(QKeySequence("Ctrl+B"));
     m_speedDialAction = new QAction(QIcon(":/speed.png"),
                                     tr("Show/Hide speed dial window"), this);
     m_recordAction = new QAction(QIcon(":/record.png"),
