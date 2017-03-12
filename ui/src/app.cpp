@@ -680,10 +680,12 @@ void App::initActions()
     m_controlBlackoutAction->setChecked(m_doc->inputOutputMap()->blackout());
 
     m_liveEditAction = new QAction(QIcon(":/liveedit.png"), tr("Live edit a function"), this);
+    m_liveEditAction->setShortcut(QKeySequence("CTRL+L"));
     connect(m_liveEditAction, SIGNAL(triggered()), this, SLOT(slotFunctionLiveEdit()));
     m_liveEditAction->setEnabled(false);
 
     m_liveEditVirtualConsoleAction = new QAction(QIcon(":/liveedit_vc.png"), tr("Toggle Virtual Console Live edit"), this);
+    m_liveEditVirtualConsoleAction->setShortcut(QKeySequence("CTRL+E"));
     connect(m_liveEditVirtualConsoleAction, SIGNAL(triggered()), this, SLOT(slotLiveEditVirtualConsole()));
     m_liveEditVirtualConsoleAction->setCheckable(true);
     m_liveEditVirtualConsoleAction->setEnabled(false);
