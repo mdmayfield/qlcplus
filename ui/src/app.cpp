@@ -693,7 +693,7 @@ void App::initActions()
     connect(m_dumpDmxAction, SIGNAL(triggered()), this, SLOT(slotDumpDmxIntoFunction()));
 
     m_controlPanicAction = new QAction(QIcon(":/panic.png"), tr("Stop ALL functions!"), this);
-    m_controlPanicAction->setShortcut(QKeySequence("CTRL+SHIFT+ESC"));
+    m_controlPanicAction->setShortcut(QKeySequence("CTRL+R"));
     connect(m_controlPanicAction, SIGNAL(triggered(bool)), this, SLOT(slotControlPanic()));
 
     m_fadeAndStopMenu = new QMenu();
