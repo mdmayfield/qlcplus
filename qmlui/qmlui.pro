@@ -23,7 +23,7 @@ LIBS            += -lqlcplusengine
 #win32:QMAKE_LFLAGS += -shared
 win32:RC_FILE = qmlui.rc
 
-DEFINES += MESHESDIR=\\\"$$INSTALLROOT/$$DATADIR/meshes\\\"  
+DEFINES += MESHESDIR=\\\"$$INSTALLROOT/$$DATADIR/meshes\\\"
 
 HEADERS += \
     app.h \
@@ -32,7 +32,9 @@ HEADERS += \
     chasereditor.h \
     collectioneditor.h \
     contextmanager.h \
+    efxeditor.h \
     fixturebrowser.h \
+    fixturegroupeditor.h \
     fixturemanager.h \
     functioneditor.h \
     functionmanager.h \
@@ -56,7 +58,9 @@ SOURCES += main.cpp \
     chasereditor.cpp \
     collectioneditor.cpp \
     contextmanager.cpp \
+    efxeditor.cpp \
     fixturebrowser.cpp \
+    fixturegroupeditor.cpp \
     fixturemanager.cpp \
     functioneditor.cpp \
     functionmanager.cpp \
@@ -72,7 +76,7 @@ SOURCES += main.cpp \
     showmanager.cpp \
     treemodel.cpp \
     treemodelitem.cpp
-    
+
 
 #############################################
 #  Virtual Console

@@ -67,13 +67,13 @@ Rectangle
             height: parent.height - 6
             width: searchBox.width - searchIcon.width - 10
             color: UISettings.fgMain
-            text: fixtureBrowser.searchString
+            text: fixtureBrowser.searchFilter
             font.family: "Roboto Condensed"
             font.pixelSize: height
             selectionColor: UISettings.highlightPressed
             selectByMouse: true
 
-            onTextChanged: fixtureBrowser.searchString = text
+            onTextChanged: fixtureBrowser.searchFilter = text
         }
     }
 
@@ -82,7 +82,7 @@ Rectangle
         id: manufacturerList
         x: 8
         z: 0
-        visible: fixtureBrowser.selectedManufacturer.length == 0 && fixtureBrowser.searchString.length < 3
+        visible: fixtureBrowser.selectedManufacturer.length == 0 && fixtureBrowser.searchFilter.length < 3
         anchors.top: searchBox.bottom
         anchors.topMargin: 6
         anchors.bottom: parent.bottom
@@ -128,13 +128,13 @@ Rectangle
 
         Component.onCompleted: manufacturerList.positionViewAtIndex(manufacturerIndex, ListView.Center)
 
-        ScrollBar { flickable: manufacturerList }
+        CustomScrollBar { flickable: manufacturerList }
     }
 
     Rectangle
     {
         id: fixtureArea
-        visible: fixtureBrowser.selectedManufacturer.length && fixtureBrowser.searchString.length < 3
+        visible: fixtureBrowser.selectedManufacturer.length && fixtureBrowser.searchFilter.length < 3
         color: "transparent"
 
         width: parent.width
@@ -183,6 +183,7 @@ Rectangle
                 onClicked:
                 {
                     fxPropsRect.visible = false
+                    panelPropsRect.visible = false
                     fixtureBrowser.selectedManufacturer = ""
                 }
             }
@@ -224,11 +225,20 @@ Rectangle
                     {
                         modelsList.currentIndex = index
                         fixtureBrowser.selectedModel = modelData
-                        fxPropsRect.visible = true
+                        if (modelData == "Generic RGB Panel")
+                        {
+                            fxPropsRect.visible = false
+                            panelPropsRect.visible = true
+                        }
+                        else
+                        {
+                            panelPropsRect.visible = false
+                            fxPropsRect.visible = true
+                        }
                     }
                 }
             }
-            ScrollBar { flickable: modelsList }
+            CustomScrollBar { flickable: modelsList }
         }
     }
 
@@ -236,7 +246,7 @@ Rectangle
     {
         id: searchRect
         clip: true
-        visible: fixtureBrowser.searchString.length >= 3 ? true : false
+        visible: fixtureBrowser.searchFilter.length >= 3 ? true : false
 
         contentHeight: searchColumn.height
 
@@ -269,7 +279,7 @@ Rectangle
                                 {
                                     item.textLabel = label
                                     item.nodePath = path
-                                    item.nodeIcon = ""
+                                    item.itemIcon = ""
                                     item.isExpanded = true
                                     item.childrenDelegate = "qrc:/FixtureBrowserDelegate.qml"
                                     item.nodeChildren = childrenModel
@@ -287,7 +297,6 @@ Rectangle
                                         qItem.manufacturer = item.nodePath
                                         fixtureBrowser.selectedManufacturer = qItem.manufacturer
                                         fixtureBrowser.selectedModel = qItem.textLabel
-                                        fxPropsRect.fxName = qItem.textLabel
                                         fxPropsRect.visible = true
                                     }
                                 }
@@ -297,11 +306,22 @@ Rectangle
             } // end of Repeater
         } // end of Column
     } // end of Flickable
-    ScrollBar { flickable: searchRect }
+    CustomScrollBar { flickable: searchRect }
 
     FixtureProperties
     {
         id: fxPropsRect
+        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 8
+        visible: false
+    }
+
+    RGBPanelProperties
+    {
+        objectName: "RGBPanelProps"
+        id: panelPropsRect
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.bottom: parent.bottom

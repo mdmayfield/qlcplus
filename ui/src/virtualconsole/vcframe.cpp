@@ -426,8 +426,6 @@ void VCFrame::setMultipageMode(bool enable)
                 addWidgetToPageMap(child);
             }
         }
-        for (int i = 0; i < m_totalPagesNumber; i++)
-            addShortcut();
     }
     else
     {
@@ -443,6 +441,7 @@ void VCFrame::setMultipageMode(bool enable)
         m_prevPageBtn = NULL;
         m_pageCombo = NULL;
         m_nextPageBtn = NULL;
+        setCaption(caption());
     }
 
     m_multiPageMode = enable;
@@ -818,8 +817,8 @@ bool VCFrame::copyFrom(const VCWidget* widget)
     setHeaderVisible(frame->m_showHeader);
     setEnableButtonVisible(frame->m_showEnableButton);
 
-    setTotalPagesNumber(frame->m_totalPagesNumber);
     setMultipageMode(frame->m_multiPageMode);
+    setTotalPagesNumber(frame->m_totalPagesNumber);
 
     setPagesLoop(frame->m_pagesLoop);
   

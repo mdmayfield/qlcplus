@@ -148,7 +148,7 @@ Rectangle
 
                 RobotoText
                 {
-                    label: qsTr("Fixture Group");
+                    label: qsTr("Fixture Group")
                     height: editorColumn.itemsHeight
                     onWidthChanged:
                     {
@@ -160,7 +160,7 @@ Rectangle
                 {
                     Layout.fillWidth: true
                     height: editorColumn.itemsHeight
-                    model: fixtureManager.groupsListModel
+                    model: fixtureGroupEditor.groupsListModel
                     currentValue: rgbMatrixEditor.fixtureGroup
                     onValueChanged: rgbMatrixEditor.fixtureGroup = value
                 }
@@ -547,7 +547,7 @@ Rectangle
             }
         } // Column
     } // Flickable
-    ScrollBar { id: sbar; flickable: editorFlickable }
+    CustomScrollBar { id: sbar; flickable: editorFlickable }
 
     /* *************************************************************
      * Here starts all the Algorithm-specific Component definitions,

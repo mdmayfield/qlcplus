@@ -64,8 +64,6 @@
 #   include "hotplugmonitor.h"
 #endif
 
-// enable Alt-key mnemonics on MacOS, part 1/2
-// This allows MacOS users to type the first letter of dialog buttons and use other Alt (Option) key shortcuts
 #if defined(__APPLE__) || defined(Q_OS_MAC)
 extern void qt_set_sequence_auto_mnemonic(bool b);
 #endif
@@ -215,9 +213,8 @@ void App::init()
     m_tab->setTabPosition(QTabWidget::South);
     setCentralWidget(m_tab);
 
-// enable Alt-key mnemonics on MacOS, part 2/2
 #if defined(__APPLE__) || defined(Q_OS_MAC)
-	qt_set_sequence_auto_mnemonic(true);
+    qt_set_sequence_auto_mnemonic(true);
 #endif
 
     QLCFile::checkRaspberry();
