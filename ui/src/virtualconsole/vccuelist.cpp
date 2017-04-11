@@ -1116,33 +1116,22 @@ void VCCueList::slotSlider1ValueChanged(int value)
 {
     if (slidersMode() == Steps)
     {
-//        value = 255 - value;
-        value = (value / 2) - 1; // for MIDI
-//        m_sl1TopLabel->setText(QString("%1").arg(value));
         Chaser* ch = chaser();
         if (ch == NULL || ch->stopped())
             return;
-        int newStep = value; // by default we assume the Chaser has more than 256 steps
-/*        if (ch->stepsCount() < 256)
-        {
-            float stepSize = 255.0 / (float)ch->stepsCount();
-            if(value >= 255.0 - stepSize)
-                newStep = ch->stepsCount() - 1;
-            else
-                newStep = qFloor((float)value / stepSize);
-        }
-        //qDebug() << "value:" << value << "steps:" << ch->stepsCount() << "new step:" << newStep;
-*/
-        if (newStep < 0)
-            newStep = 0;
 
-        if (newStep > ch->stepsCount() - 1)
-           newStep = ch->stepsCount() - 1;
+        value = (value / 2) - 1; // for MIDI CC value to reflect human-readable cue #
 
-        if (newStep == ch->currentStepIndex())
+        if (value < 0)
+            value = 0;
+
+        if (value > ch->stepsCount() - 1)
+           value = ch->stepsCount() - 1;
+
+        if (value == ch->currentStepIndex())
             return; // nothing to do
 
-        ch->setStepIndex(newStep);
+        ch->setStepIndex(value);
     }
     else
     {
