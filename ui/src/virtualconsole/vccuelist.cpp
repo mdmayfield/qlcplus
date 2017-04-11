@@ -1117,7 +1117,7 @@ void VCCueList::slotSlider1ValueChanged(int value)
     if (slidersMode() == Steps)
     {
 //        value = 255 - value;
-        value = value / 2; // for MIDI
+        value = (value / 2) - 1; // for MIDI
 //        m_sl1TopLabel->setText(QString("%1").arg(value));
         Chaser* ch = chaser();
         if (ch == NULL || ch->stopped())
