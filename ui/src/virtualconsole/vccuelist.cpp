@@ -790,7 +790,7 @@ void VCCueList::slotCurrentStepChanged(int stepNumber)
     m_primaryIndex = stepNumber;
     if (slidersMode() == Steps)
     {
-        m_sl1BottomLabel->setStyleSheet(cfLabelBlueStyle);
+/*        m_sl1BottomLabel->setStyleSheet(cfLabelBlueStyle);
         m_sl1BottomLabel->setText(QString("#%1").arg(m_primaryIndex + 1));
 
         float stepVal;
@@ -812,7 +812,7 @@ void VCCueList::slotCurrentStepChanged(int stepNumber)
             m_slider1->setValue(255 - slValue);
             m_sl1TopLabel->setText(QString("%1").arg(slValue));
             m_slider1->blockSignals(false);
-        }
+        } */     // Don't care about the slider value for MIDI purposes
     }
     else
         setSlidersInfo(m_primaryIndex);
@@ -1116,13 +1116,14 @@ void VCCueList::slotSlider1ValueChanged(int value)
 {
     if (slidersMode() == Steps)
     {
-        value = 255 - value;
-        m_sl1TopLabel->setText(QString("%1").arg(value));
+//        value = 255 - value;
+        value = value / 2; // for MIDI
+//        m_sl1TopLabel->setText(QString("%1").arg(value));
         Chaser* ch = chaser();
         if (ch == NULL || ch->stopped())
             return;
         int newStep = value; // by default we assume the Chaser has more than 256 steps
-        if (ch->stepsCount() < 256)
+/*        if (ch->stepsCount() < 256)
         {
             float stepSize = 255.0 / (float)ch->stepsCount();
             if(value >= 255.0 - stepSize)
@@ -1131,6 +1132,12 @@ void VCCueList::slotSlider1ValueChanged(int value)
                 newStep = qFloor((float)value / stepSize);
         }
         //qDebug() << "value:" << value << "steps:" << ch->stepsCount() << "new step:" << newStep;
+*/
+        if (newStep < 0)
+            newStep = 0;
+
+        if (newStep > ch->stepsCount() - 1)
+           newStep = ch->stepsCount() - 1;
 
         if (newStep == ch->currentStepIndex())
             return; // nothing to do
