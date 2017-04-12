@@ -790,29 +790,30 @@ void VCCueList::slotCurrentStepChanged(int stepNumber)
     m_primaryIndex = stepNumber;
     if (slidersMode() == Steps)
     {
-/*        m_sl1BottomLabel->setStyleSheet(cfLabelBlueStyle);
+        m_sl1BottomLabel->setStyleSheet(cfLabelBlueStyle);
         m_sl1BottomLabel->setText(QString("#%1").arg(m_primaryIndex + 1));
 
-        float stepVal;
+/*        float stepVal;
         int stepsCount = m_tree->topLevelItemCount();
         if (stepsCount < 256)
             stepVal = 255.0 / (float)stepsCount;
         else
             stepVal = 1.0;
-        int slValue = (stepVal * (float)stepNumber);
+        int slValue = (stepVal * (float)stepNumber);*/
+        int slValue = stepNumber * 2;
         if (slValue > 255)
             slValue = 255;
 
         //qDebug() << "Slider value:" << m_slider1->value() << "Step range:" << (255 - slValue) << (255 - slValue - stepVal);
         // if the Step slider is already in range, then do not set its value
         // this means a user interaction is going on, either with the mouse or external controller
-        if (m_slider1->value() < (255 - slValue - stepVal) || m_slider1->value() > (255 - slValue))
-        {
+//        if (m_slider1->value() < (255 - slValue - stepVal) || m_slider1->value() > (255 - slValue))
+//        {
             m_slider1->blockSignals(true);
             m_slider1->setValue(255 - slValue);
             m_sl1TopLabel->setText(QString("%1").arg(slValue));
             m_slider1->blockSignals(false);
-        } */     // Don't care about the slider value for MIDI purposes
+//        }
     }
     else
         setSlidersInfo(m_primaryIndex);
@@ -1116,22 +1117,35 @@ void VCCueList::slotSlider1ValueChanged(int value)
 {
     if (slidersMode() == Steps)
     {
+//       value = 255 - value;
+        m_sl1TopLabel->setText(QString("%1").arg(value));
         Chaser* ch = chaser();
         if (ch == NULL || ch->stopped())
             return;
+/*        int newStep = value; // by default we assume the Chaser has more than 256 steps
+        if (ch->stepsCount() < 256)
+        {
+            float stepSize = 255.0 / (float)ch->stepsCount();
+            if(value >= 255.0 - stepSize)
+                newStep = ch->stepsCount() - 1;
+            else
+                newStep = qFloor((float)value / stepSize);
+        }
+        //qDebug() << "value:" << value << "steps:" << ch->stepsCount() << "new step:" << newStep;
+*/
 
-        value = (value / 2) - 1; // for MIDI CC value to reflect human-readable cue #
+        int newStep = (value / 2) - 1;
 
-        if (value < 0)
-            value = 0;
+        if (newStep < 0)
+            newStep = 0;
 
-        if (value > ch->stepsCount() - 1)
-           value = ch->stepsCount() - 1;
+        if (newStep > 255)
+            newStep = 255; // should never happen; expected max is 127
 
-        if (value == ch->currentStepIndex())
+        if (newStep == ch->currentStepIndex())
             return; // nothing to do
 
-        ch->setStepIndex(value);
+        ch->setStepIndex(newStep);
     }
     else
     {
