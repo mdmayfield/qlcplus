@@ -1,0 +1,45 @@
+Opt-1	Fixtures
+Opt-2	Functions
+Opt-3	Shows
+Opt-4	Virtual Console
+Opt-5	Simple Desk
+Opt-6	Inputs/Outputs
+
+Cmd-R	Stop All Functions
+Cmd-T	Live/Edit Mode
+Cmd-E	Virtual Console Live Edit
+Cmd-L	Function Live Edit
+
+Opt-R	(Function picker) Running Functions
+Opt-A	(Function picker) All Functions
+
+	Virtual Console:
+Shift-Cmd-B	New Button
+Shift-Cmd-M	New Button Matrix
+Shift-Cmd-S	New Slider
+Shift-Cmd-I	New Slider Matrix
+Shift-Cmd-K	New Knob
+Shift-Cmd-D	New Speed Dial
+Shift-Cmd-X	New XY Pad
+Shift-Cmd-C	New Cue List
+Shift-Cmd-R	New Animation
+Shift-Cmd-A	New Audio Triggers
+Shift-Cmd-F	New Frame
+Shift-Cmd-O	New Solo Frame
+Shift-Cmd-L	New Label
+Shift-Cmd-T	New Clock
+
+	Function Manager:
+Shift-Cmd-S	New Scene
+Shift-Cmd-C	New Chaser
+Shift-Cmd-E	New EFX
+Shift-Cmd-O	New Collection
+Shift-Cmd-R	New RGB Matrix
+Shift-Cmd-T	New Script
+Shift-Cmd-A	New Audio
+Shift-Cmd-V	New Video
+Shift-Cmd-N	New Folder
+
+	Scene Editor:
+Shift-Cmd-Right	Next Tab
+Shift-Cmd-Left	Previous Tab
