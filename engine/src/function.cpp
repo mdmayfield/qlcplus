@@ -711,7 +711,7 @@ uint Function::stringToSpeed(QString speed)
 {
     uint value = 0;
 
-    if (speed == QChar(0x221E)) // Infinity symbol
+    if (speed == QChar(0x221E) || speed == QChar('i')) // Infinity symbol
         return infiniteSpeed();
 
     value += speedSplit(speed, "h") * 1000 * 60 * 60;
