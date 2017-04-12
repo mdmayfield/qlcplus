@@ -86,8 +86,10 @@ RGBMatrixEditor::RGBMatrixEditor(QWidget* parent, RGBMatrix* mtx, Doc* doc)
 
     slotModeChanged(m_doc->mode());
 
-    // Set focus to the editor
-    // m_nameEdit->setFocus();
+    // Set focus to the editor if newly created
+    if (m_matrix->name().contains("New RGB Matrix") ||
+        m_matrix->name().contains("(Copy)"))
+        m_nameEdit->setFocus();
 }
 
 RGBMatrixEditor::~RGBMatrixEditor()

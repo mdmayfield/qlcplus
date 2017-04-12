@@ -101,8 +101,10 @@ EFXEditor::EFXEditor(QWidget* parent, EFX* efx, Doc* doc)
 
     updateSpeedDials();
 
-    // Set focus to the editor
-    // m_nameEdit->setFocus();
+    // Set focus to the editor if newly created
+    if (m_efx->name().contains("New EFX") ||
+        m_efx->name().contains("(Copy)"))
+        m_nameEdit->setFocus();
 }
 
 EFXEditor::~EFXEditor()

@@ -94,8 +94,10 @@ SceneEditor::SceneEditor(QWidget* parent, Scene* scene, Doc* doc, bool applyValu
 
     m_initFinished = true;
 
-    // Set focus to the editor
-    // m_nameEdit->setFocus(); // This seems to cause more harm than good
+    // Set focus to the editor if newly created
+    if (m_scene->name().contains("New Scene") ||
+        m_scene->name().contains("(Copy)"))
+        m_nameEdit->setFocus();
 }
 
 SceneEditor::~SceneEditor()

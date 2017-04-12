@@ -71,8 +71,10 @@ ScriptEditor::ScriptEditor(QWidget* parent, Script* script, Doc* doc)
 
     connect(m_script, SIGNAL(stopped(quint32)), this, SLOT(slotFunctionStopped(quint32)));
 
-    // Set focus to the editor
-    // m_nameEdit->setFocus();
+    // Set focus to the editor if newly created
+    if (m_script->name().contains("New Script") ||
+        m_script->name().contains("(Copy)"))
+        m_nameEdit->setFocus();
 }
 
 ScriptEditor::~ScriptEditor()

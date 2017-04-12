@@ -60,8 +60,10 @@ CollectionEditor::CollectionEditor(QWidget* parent, Collection* fc, Doc* doc)
 
     updateFunctionList();
 
-    // Set focus to the editor
-    // m_nameEdit->setFocus();
+    // Set focus to the editor if newly created
+    if (m_collection->name().contains("New Collection") ||
+        m_collection->name().contains("(Copy)"))
+        m_nameEdit->setFocus();
 }
 
 CollectionEditor::~CollectionEditor()
