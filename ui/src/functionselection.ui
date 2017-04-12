@@ -38,7 +38,7 @@
      <item>
       <widget class="QRadioButton" name="m_allFunctionsRadio">
        <property name="text">
-        <string>All functions</string>
+        <string>&amp;All functions</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -48,7 +48,7 @@
      <item>
       <widget class="QRadioButton" name="m_runningFunctionsRadio">
        <property name="text">
-        <string>Running functions</string>
+        <string>&amp;Running functions</string>
        </property>
       </widget>
      </item>
