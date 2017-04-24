@@ -43,3 +43,4 @@ Shift-Cmd-N	New Folder
 	Scene Editor:
 Shift-Cmd-Right	Next Tab
 Shift-Cmd-Left	Previous Tab
+Shift-Cmd-Down	Switch between tab view and all channels view

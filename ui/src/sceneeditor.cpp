@@ -170,6 +170,7 @@ void SceneEditor::init(bool applyValues)
                                     tr("Position tool for moving heads/scanners"), this);
     m_tabViewAction = new QAction(QIcon(":/tabview.png"),
                                     tr("Switch between tab view and all channels view"), this);
+    m_tabViewAction->setShortcut(QKeySequence("Ctrl+Shift+Down"));
     m_blindAction = new QAction(QIcon(":/blind.png"),
                                 tr("Toggle blind mode"), this);
     m_blindAction->setShortcut(QKeySequence("Ctrl+B"));
