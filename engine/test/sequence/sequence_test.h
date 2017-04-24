@@ -1,6 +1,6 @@
 /*
   Q Light Controller Plus - Unit test
-  inputoutputmap_test.h
+  sequence_test.h
 
   Copyright (c) Massimo Callegari
 
@@ -17,48 +17,33 @@
   limitations under the License.
 */
 
-#ifndef INPUTOUTPUTMAP_TEST_H
-#define INPUTOUTPUTMAP_TEST_H
+#ifndef SEQUENCE_TEST_H
+#define SEQUENCE_TEST_H
 
 #include <QObject>
 
 class Doc;
-class InputOutputMap_Test : public QObject
+class Sequence_Test : public QObject
 {
     Q_OBJECT
 
 private slots:
     void initTestCase();
     void cleanupTestCase();
+    void init();
+    void cleanup();
 
     void initial();
-    void pluginNames();
-    void pluginInputs();
-    void pluginOutputs();
-    void configurePlugin();
-    void inputPluginStatus();
-    void outputPluginStatus();
-    void universeNames();
-    void addUniverse();
-    void removeUniverse();
-    void universe();
-    void profiles();
-    void setInputPatch();
-    void setOutputPatch();
-    void setMultipleOutputPatches();
-    void slotValueChanged();
-    void slotConfigurationChanged();
-    void loadInputProfiles();
-    void inputSourceNames();
-    void profileDirectories();
-    void claimReleaseDumpReset();
-    void blackout();
-    void grandMaster();
+    void createCopy();
+
+    void loadWrongRoot();
+    void loadWrongType();
+    void loadWithScene();
+    void loadWithoutScene();
+    void save();
 
 private:
     Doc* m_doc;
 };
 
 #endif
-
-

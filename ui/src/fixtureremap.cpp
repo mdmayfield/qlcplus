@@ -38,6 +38,7 @@
 #include "chaserstep.h"
 #include "audiobar.h"
 #include "vcslider.h"
+#include "sequence.h"
 #include "vcxypad.h"
 #include "vcframe.h"
 #include "chaser.h"
@@ -722,7 +723,7 @@ void FixtureRemap::accept()
     {
         switch (func->type())
         {
-            case Function::Scene:
+            case Function::SceneType:
             {
                 Scene *s = qobject_cast<Scene*>(func);
                 qDebug() << "Analyzing Scene #" << s->id();
@@ -737,25 +738,22 @@ void FixtureRemap::accept()
                 }
             }
             break;
-            case Function::Chaser:
+            case Function::SequenceType:
             {
-                Chaser *c = qobject_cast<Chaser*>(func);
-                if (c->isSequence() == true)
+                Sequence *s = qobject_cast<Sequence*>(func);
+                for (int idx = 0; idx < s->stepsCount(); idx++)
                 {
-                    for (int idx = 0; idx < c->stepsCount(); idx++)
-                    {
-                        ChaserStep cs = c->stepAt(idx);
-                        QList <SceneValue> newList = remapSceneValues(cs.values, sourceList, targetList);
-                        //qDebug() << "Step" << idx << "remapped" << cs.values.count() << "to" << newList.count();
-                        // this is crucial: here all the "unmapped" channels will be lost forever !
-                        cs.values.clear();
-                        cs.values = newList;
-                        c->replaceStep(cs, idx);
-                    }
+                    ChaserStep *cs = s->stepAt(idx);
+                    QList <SceneValue> newList = remapSceneValues(cs->values, sourceList, targetList);
+                    //qDebug() << "Step" << idx << "remapped" << cs.values.count() << "to" << newList.count();
+                    // this is crucial: here all the "unmapped" channels will be lost forever !
+                    cs->values.clear();
+                    cs->values = newList;
+                    //s->replaceStep(cs, idx);
                 }
             }
             break;
-            case Function::EFX:
+            case Function::EFXType:
             {
                 EFX *e = qobject_cast<EFX*>(func);
                 // make a copy of this EFX fixtures list

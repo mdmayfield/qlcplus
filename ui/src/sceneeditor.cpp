@@ -206,7 +206,7 @@ void SceneEditor::init(bool applyValues)
     m_chaserCombo->setMaximumWidth(250);
     m_chaserCombo->addItem(tr("None"), Function::invalidId());
     slotChaserComboActivated(0);
-    foreach (Function *function, m_doc->functionsByType(Function::Chaser))
+    foreach (Function *function, m_doc->functionsByType(Function::ChaserType))
     {
         m_chaserCombo->addItem(function->name(), function->id());
         if (function->id() == selectId)
@@ -1562,7 +1562,7 @@ void SceneEditor::slotValueChanged(quint32 fxi, quint32 channel, uchar value)
             m_scene->setValue(SceneValue(fxi, channel, value), m_blindAction->isChecked(), false);
         else
             m_scene->setValue(SceneValue(fxi, channel, value), m_blindAction->isChecked(), true);
-        emit fixtureValueChanged(SceneValue(fxi, channel, value));
+        emit fixtureValueChanged(SceneValue(fxi, channel, value), true);
     }
 
     if (m_source != NULL)
@@ -1581,7 +1581,10 @@ void SceneEditor::slotChecked(quint32 fxi, quint32 channel, bool state)
         {
             m_scene->unsetValue(fxi, channel);
             if (m_source != NULL)
+            {
                 m_source->unset(fxi, channel);
+                emit fixtureValueChanged(SceneValue(fxi, channel, 0), false);
+            }
         }
     }
 }

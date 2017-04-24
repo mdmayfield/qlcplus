@@ -42,9 +42,8 @@
  * Initialization
  *****************************************************************************/
 
-Scene::Scene(Doc* doc) : Function(doc, Function::Scene)
+Scene::Scene(Doc* doc) : Function(doc, Function::SceneType)
     , m_legacyFadeBus(Bus::invalid())
-    , m_hasChildren(false)
     , m_fader(NULL)
 {
     setName(tr("New Scene"));
@@ -57,11 +56,6 @@ Scene::~Scene()
 QIcon Scene::getIcon() const
 {
     return QIcon(":/scene.png");
-}
-
-void Scene::setChildrenFlag(bool flag)
-{
-    m_hasChildren = flag;
 }
 
 quint32 Scene::totalDuration()
@@ -386,7 +380,9 @@ bool Scene::saveXML(QXmlStreamWriter *doc)
             currFixID = sv.fxi;
         }
         currFixValues.append(QString::number(sv.channel));
-        currFixValues.append(QString::number(m_hasChildren ? 0 : sv.value));
+        // IMPORTANT: if a Scene is hidden, so used as a container by some Sequences,
+        // it must be saved with values set to zero
+        currFixValues.append(QString::number(isVisible() ? sv.value : 0));
     }
     /* write last element */
     saveXMLFixtureValues(doc, currFixID, currFixValues);
@@ -425,7 +421,7 @@ bool Scene::loadXML(QXmlStreamReader &root)
         return false;
     }
 
-    if (root.attributes().value(KXMLQLCFunctionType).toString() != typeToString(Function::Scene))
+    if (root.attributes().value(KXMLQLCFunctionType).toString() != typeToString(Function::SceneType))
     {
         qWarning() << Q_FUNC_INFO << "Function is not a scene";
         return false;
