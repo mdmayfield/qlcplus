@@ -73,17 +73,17 @@ ChaserEditor::ChaserEditor(QWidget* parent, Chaser* chaser, Doc* doc, bool liveM
 
     m_cutAction = new QAction(QIcon(":/editcut.png"), tr("Cut"), this);
     m_cutButton->setDefaultAction(m_cutAction);
-    m_cutAction->setShortcut(QKeySequence(QKeySequence::Cut));
+//    m_cutAction->setShortcut(QKeySequence(QKeySequence::Cut));
     connect(m_cutAction, SIGNAL(triggered(bool)), this, SLOT(slotCutClicked()));
 
     m_copyAction = new QAction(QIcon(":/editcopy.png"), tr("Copy"), this);
     m_copyButton->setDefaultAction(m_copyAction);
-    m_copyAction->setShortcut(QKeySequence(QKeySequence::Copy));
+//    m_copyAction->setShortcut(QKeySequence(QKeySequence::Copy));
     connect(m_copyAction, SIGNAL(triggered(bool)), this, SLOT(slotCopyClicked()));
 
     m_pasteAction = new QAction(QIcon(":/editpaste.png"), tr("Paste"), this);
     m_pasteButton->setDefaultAction(m_pasteAction);
-    m_pasteAction->setShortcut(QKeySequence(QKeySequence::Paste));
+//    m_pasteAction->setShortcut(QKeySequence(QKeySequence::Paste));
     connect(m_pasteAction, SIGNAL(triggered(bool)), this, SLOT(slotPasteClicked()));
 
     /* Name edit */
