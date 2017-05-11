@@ -96,12 +96,6 @@ public:
     bool copyFrom(const Function* function);
 
     /*********************************************************************
-     * UI State
-     *********************************************************************/
-private:
-    virtual FunctionUiState * createUiState();
-
-    /*********************************************************************
      * Values
      *********************************************************************/
 public:
@@ -146,6 +140,9 @@ public:
      * Clear all values
      */
     void clear();
+
+signals:
+    void valueChanged(SceneValue scv);
 
 protected:
     QMap <SceneValue, uchar> m_values;
