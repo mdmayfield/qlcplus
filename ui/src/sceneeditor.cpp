@@ -1020,6 +1020,8 @@ void SceneEditor::slotRecord()
 void SceneEditor::slotChaserComboActivated(int index)
 {
     quint32 id = m_chaserCombo->itemData(index).toUInt();
+    QSettings settings;
+    settings.setValue(SETTINGS_CHASER, id); // Avoids alternating chaser when selecting different Scenes
     if (id == Function::invalidId())
         m_recordAction->setEnabled(false);
     else
