@@ -196,7 +196,7 @@ void SceneEditor::init(bool applyValues)
     m_speedDialAction = new QAction(QIcon(":/speed.png"),
                                     tr("Show/Hide speed dial window"), this);
     m_recordAction = new QAction(QIcon(":/record.png"),
-                                 tr("Clone this scene and append as a new step to the selected chaser"), this);
+                                 tr("Append this scene to the selected chaser as a new step"), this);
 
     m_nextTabAction = new QAction(QIcon(":/forward.png"), tr("Go to next fixture tab"), this);
     m_nextTabAction->setShortcut(QKeySequence("Ctrl+Shift+Right"));
@@ -1006,15 +1006,7 @@ void SceneEditor::slotRecord()
     if (chaser == NULL)
         return;
 
-    QString name = chaser->name() + QString(" - %1").arg(chaser->steps().size() + 1);
-    Scene* clone = new Scene(m_doc);
-    clone->copyFrom(m_scene);
-    clone->setName(name);
-    m_doc->addFunction(clone);
-    chaser->addStep(ChaserStep(clone->id()));
-
-    // Switch to the cloned scene
-    FunctionManager::instance()->selectFunction(clone->id());
+    chaser->addStep(ChaserStep(m_scene->id()));
 }
 
 void SceneEditor::slotChaserComboActivated(int index)
