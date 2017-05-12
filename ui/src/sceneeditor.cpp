@@ -182,6 +182,7 @@ void SceneEditor::init(bool applyValues)
     m_pasteAction->setShortcut(QKeySequence("Ctrl+V"));
     m_copyToAllAction = new QAction(QIcon(":/editcopyall.png"),
                                     tr("Copy current values to all fixtures"), this);
+    m_copyToAllAction->setShortcut(QKeySequence("Ctrl+Shift+Up"));
     m_colorToolAction = new QAction(QIcon(":/color.png"),
                                     tr("Color tool for CMY/RGB-capable fixtures"), this);
     m_positionToolAction = new QAction(QIcon(":/xypad.png"),
