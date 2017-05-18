@@ -1,9 +1,10 @@
-qlcplus (4.10.6) stable; urgency=low
+qlcplus (4.11.0) stable; urgency=low
 
   * engine: fixed setting start/end color while a RGB Matrix is running
   * engine: fixed crash when pausing a Show with an unavailable audio file
   * UI: enabled Alt key combinations on macOS to behave like other platforms (thanks to Matt Mayfield)
   * UI/RGB Panel: added panel direction (thanks to Raivis Rengelis)
+  * UI/Fixture Manager: added weight and power consumption information on fixtures/universe selection (Chris de Rock idea)
   * UI/Scene Editor: preserve fixture tab order when fixtures with no channels set are present
   * UI/RGB Matrix Editor: allow the preview to run even in operate mode
   * UI/Audio Editor: added the possibility to loop an audio file (thanks to Raivis Rengelis)
@@ -24,6 +25,7 @@ qlcplus (4.10.6) stable; urgency=low
   * Web access: improved getChannelsValues and added Simple Desk reset per-channel (sdResetChannel API)
   * Web access: implemented keypad increase/decrease buttons (thanks to Santiago Benejam Torres)
   * New input profile: Zoom R16 (thanks to Benedict Stein)
+  * New MIDI template: Akai APC40 MK2 Ableton mode (thanks to Branson Matheson)
   * New fixture: American DJ FREQ 5 Strobe (thanks to Martin Bochenek)
   * New fixture: Martin Rush MH3 (thanks to Ed Middlebrooks)
   * New fixture: Eurolite LED ACS BAR-12 (thanks to Michael Horber)
@@ -45,7 +47,7 @@ qlcplus (4.10.6) stable; urgency=low
   * New fixture: Clay Paky Alpha Spot HPE 575 (thanks to Rohmer)
   * New fixture: Robe LED Blinder 196LT (thanks to Tim Cullingworth)
   * New fixture: Chauvet COLORband T3 USB (thanks to Ian Nault)
-  * New fixtures: American DJ Dotz Matrix, Martin Jem Compact Hazer Pro (thanks to Sam Brooks)
+  * New fixtures: American DJ Dotz Matrix, Martin Jem Compact Hazer Pro,Geni Mojo Spin Master Series (thanks to Sam Brooks)
   * New fixture: American DJ XS 400 (thanks to Jared)
   * New fixture: Velleman VDP1500SM (thanks to Freddy Hoogstoel)
   * New fixture: Chauvet Intimidator Spot 355Z IRC (thanks to Michael Clements)
@@ -63,12 +65,20 @@ qlcplus (4.10.6) stable; urgency=low
   * New fixtures: Showtec: Infinity iB-5R, Compact Par 18 MKII, Phantom 20 LED Beam (thanks to Nicolò Zanon)
   * New fixture: Griven Gobostorm Plus MK2 (thanks to Attilio Bongiorni)
   * New fixture: Chauvet Freedom Stick (thanks to Jay Szewczyk)
-  * New fixture: Eurolite TMH-14 (thanks to Chris de Rock)
+  * New fixture: Eurolite TMH-14, Chauvet Intimidator Trio (thanks to Chris de Rock)
   * New fixture: Chauvet Scorpion Dual (thanks to Alan Chavis)
   * New fixture: American DJ Ultra Hex Bar 12 (thanks to Rhavin)
   * New fixture: Equinox Photon
   * New fixture: QTX MHS-60 (thanks to Nerijus Mongirdas)
-  * New fixture: Eurolite LED TMH FE-600, MARQ Colormax Par64 (thanks to Klaus Muth)
+  * New fixture: Eurolite LED TMH FE-600, MARQ Colormax Par64, Stairville CLB2.4 Compact LED PAR System (thanks to Klaus Muth)
+  * New fixture: Chauvet SlimPar Hex 6 (thanks to Yinon Sahar)
+  * New fixture: IMG Stageline PARL 20 DMX (thanks to Felix Pickenäcker)
+  * New fixture: Pro-Lights SmartBatHEX (thanks to Lorenzo Andreani)
+  * New fixture: American DJ Ikon Profile (thanks to Ham Sadler)
+  * New fixture: HQ Power Aeron Wash 575, JB Systems Space Color Laser (thanks to Ricardo Mendes)
+  * New fixture: American DJ VPar (thanks to Eric Eskam)
+  * New fixture: MARQ Gesture Beam/Wash 102 (thanks to John Yiannikakis)
+  * New fixtures: Chauvet COLORado 3P, Legend 330SR Spot, SlimPar HEX 3 (thanks to Kevin Zepp)
 
  -- Massimo Callegari <massimocallegari@yahoo.it>  Sun, 30 Apr 2017 12:13:14 +0200
 

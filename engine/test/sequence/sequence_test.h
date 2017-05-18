@@ -1,8 +1,8 @@
 /*
-  Q Light Controller Plus
-  efxuistate.h
+  Q Light Controller Plus - Unit test
+  sequence_test.h
 
-  Copyright (C) Jano Svitok
+  Copyright (c) Massimo Callegari
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,34 +17,33 @@
   limitations under the License.
 */
 
-#ifndef EFXUISTATE_H
-#define EFXUISTATE_H
+#ifndef SEQUENCE_TEST_H
+#define SEQUENCE_TEST_H
 
-#include "functionuistate.h"
+#include <QObject>
 
-/** @addtogroup engine_functions Functions
- * @{
- */
-
-class EfxUiState : public FunctionUiState
+class Doc;
+class Sequence_Test : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(EfxUiState);
 
-public:
-    explicit EfxUiState(QObject * parent);
-    virtual ~EfxUiState();
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void init();
+    void cleanup();
 
-    virtual bool copyFrom(const FunctionUiState* uiState);
+    void initial();
+    void createCopy();
 
-public:
-    void setCurrentTab(int currentTab);
-    int currentTab() const;
+    void loadWrongRoot();
+    void loadWrongType();
+    void loadWithScene();
+    void loadWithoutScene();
+    void save();
 
 private:
-    int m_currentTab;
+    Doc* m_doc;
 };
-
-/** @} */
 
 #endif

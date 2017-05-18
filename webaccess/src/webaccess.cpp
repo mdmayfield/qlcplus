@@ -683,9 +683,11 @@ QString WebAccess::getFrameHTML(VCFrame *frame)
           "background-color: " + frame->backgroundColor().name() + "; "
           "border: 1px solid " + border.name() + ";\">\n";
 
+    str += getChildrenHTML(frame, frame->totalPagesNumber(), frame->currentPage());
+
     if (frame->isHeaderVisible())
     {
-        str += "<a class=\"vcframeButton\" style=\"position: absolute; left: 0; z-index: 1;\" href=\"javascript:frameToggleCollapse(";
+        str += "<a class=\"vcframeButton\" style=\"position: absolute; left: 0; \" href=\"javascript:frameToggleCollapse(";
         str += QString::number(frame->id()) + ");\"><img src=\"expand.png\" width=\"27\"></a>\n";
         str += "<div class=\"vcframeHeader\" style=\"color:" +
                 frame->foregroundColor().name() + ";\"><div class=\"vcFrameText\">" + frame->caption() + "</div></div>\n";
@@ -696,7 +698,7 @@ QString WebAccess::getFrameHTML(VCFrame *frame)
         if (frame->multipageMode())
         {
             str += "<div id=\"frMpHdr" + QString::number(frame->id()) + "\"";
-            str += "style=\"position: absolute; top: 0; right: 2px; z-index: 1;\">\n";
+            str += "style=\"position: absolute; top: 0; right: 2px;\">\n";
             str += "<a class=\"vcframeButton\" href=\"javascript:framePreviousPage(";
             str += QString::number(frame->id()) + ");\">";
             str += "<img src=\"back.png\" width=\"27\"></a>";
@@ -714,7 +716,6 @@ QString WebAccess::getFrameHTML(VCFrame *frame)
         }
     }
 
-    str += getChildrenHTML(frame, frame->totalPagesNumber(), frame->currentPage());
     str += "</div>\n";
 
     return str;
@@ -734,9 +735,11 @@ QString WebAccess::getSoloFrameHTML(VCSoloFrame *frame)
           "background-color: " + frame->backgroundColor().name() + "; "
           "border: 1px solid " + border.name() + ";\">\n";
 
+    str += getChildrenHTML(frame, frame->totalPagesNumber(), frame->currentPage());
+
     if (frame->isHeaderVisible())
     {
-        str += "<a class=\"vcframeButton\" style=\"position: absolute; left: 0; z-index: 1;\" href=\"javascript:frameToggleCollapse(";
+        str += "<a class=\"vcframeButton\" style=\"position: absolute; left: 0;\" href=\"javascript:frameToggleCollapse(";
         str += QString::number(frame->id()) + ");\"><img src=\"expand.png\" width=\"27\"></a>\n";
         str += "<div class=\"vcsoloframeHeader\" style=\"color:" +
                 frame->foregroundColor().name() + ";\"><div class=\"vcFrameText\">" + frame->caption() + "</div></div>\n";
@@ -746,7 +749,7 @@ QString WebAccess::getSoloFrameHTML(VCSoloFrame *frame)
 
         if (frame->multipageMode())
         {
-            str += "<div style=\"position: absolute; top: 0; right: 2px; z-index: 1;\">\n";
+            str += "<div style=\"position: absolute; top: 0; right: 2px;\">\n";
             str += "<a class=\"vcframeButton\" href=\"javascript:framePreviousPage(";
             str += QString::number(frame->id()) + ");\">";
             str += "<img src=\"back.png\" width=\"27\"></a>\n";
@@ -764,7 +767,6 @@ QString WebAccess::getSoloFrameHTML(VCSoloFrame *frame)
         }
     }
 
-    str += getChildrenHTML(frame, frame->totalPagesNumber(), frame->currentPage());
     str += "</div>\n";
 
     return str;
@@ -939,9 +941,9 @@ QString WebAccess::getCueListHTML(VCCueList *cue)
                     "onclick=\"enableCue(" + QString::number(cue->id()) + ", " + QString::number(i) + ");\" "
                     "onmouseover=\"this.style.backgroundColor='#CCD9FF';\" "
                     "onmouseout=\"checkMouseOut(" + QString::number(cue->id()) + ", " + QString::number(i) + ");\">\n";
-            ChaserStep step = chaser->stepAt(i);
+            ChaserStep *step = chaser->stepAt(i);
             str += "<td>" + QString::number(i + 1) + "</td>";
-            Function* function = doc->function(step.fid);
+            Function* function = doc->function(step->fid);
             if (function != NULL)
             {
                 str += "<td>" + function->name() + "</td>";
@@ -958,10 +960,10 @@ QString WebAccess::getCueListHTML(VCCueList *cue)
                     break;
                     case Chaser::PerStep:
                     {
-                        if (step.fadeIn == Function::infiniteSpeed())
+                        if (step->fadeIn == Function::infiniteSpeed())
                             str += "<td>&#8734;</td>";
                         else
-                            str += "<td>" + Function::speedToString(step.fadeIn) + "</td>";
+                            str += "<td>" + Function::speedToString(step->fadeIn) + "</td>";
                     }
                     break;
                     default:
@@ -985,10 +987,10 @@ QString WebAccess::getCueListHTML(VCCueList *cue)
                     break;
                     case Chaser::PerStep:
                     {
-                        if (step.fadeOut == Function::infiniteSpeed())
+                        if (step->fadeOut == Function::infiniteSpeed())
                             str += "<td>&#8734;</td>";
                         else
-                            str += "<td>" + Function::speedToString(step.fadeOut) + "</td>";
+                            str += "<td>" + Function::speedToString(step->fadeOut) + "</td>";
                     }
                     break;
                     default:
@@ -1008,10 +1010,10 @@ QString WebAccess::getCueListHTML(VCCueList *cue)
                     break;
                     case Chaser::PerStep:
                     {
-                        if (step.fadeOut == Function::infiniteSpeed())
+                        if (step->fadeOut == Function::infiniteSpeed())
                             str += "<td>&#8734;</td>";
                         else
-                            str += "<td>" + Function::speedToString(step.duration) + "</td>";
+                            str += "<td>" + Function::speedToString(step->duration) + "</td>";
                     }
                     break;
                     default:
@@ -1019,7 +1021,7 @@ QString WebAccess::getCueListHTML(VCCueList *cue)
                         str += "<td></td>";
                 }
 
-                str += "<td>" + step.note + "</td>\n";
+                str += "<td>" + step->note + "</td>\n";
             }
             str += "</td>\n";
         }
