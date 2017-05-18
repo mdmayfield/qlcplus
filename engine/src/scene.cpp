@@ -370,37 +370,37 @@ bool Scene::saveXML(QXmlStreamWriter *doc)
     }
 
     /* Scene contents */
-    // make a copy of the Scene values cause we need to empty it in the process
-    QList<SceneValue> values = m_values.keys();
-
-    // loop through the Scene Fixtures in the order they've been added
-    foreach (quint32 fxId, m_fixtures)
+    QList<quint32> writtenFixtures;
+    QMapIterator <SceneValue, uchar> it(m_values);
+    qint32 currFixID = -1;
+    QStringList currFixValues;
+    while (it.hasNext() == true)
     {
-        QStringList currFixValues;
-        bool found = false;
-
-        // look for the values that match the current Fixture ID
-        for (int j = 0; j < values.count(); j++)
+        SceneValue sv = it.next().key();
+        if (currFixID == -1) currFixID = sv.fxi;
+        if ((qint32)sv.fxi != currFixID)
         {
-            SceneValue scv = values.at(j);
-            if (scv.fxi != fxId)
-            {
-                if (found == true)
-                    break;
-                else
-                    continue;
-            }
-
-            found = true;
-            currFixValues.append(QString::number(scv.channel));
-            // IMPORTANT: if a Scene is hidden, so used as a container by some Sequences,
-            // it must be saved with values set to zero
-            currFixValues.append(QString::number(isVisible() ? scv.value : 0));
-            values.removeAt(j);
-            j--;
+            saveXMLFixtureValues(doc, currFixID, currFixValues);
+            writtenFixtures << currFixID;
+            currFixValues.clear();
+            currFixID = sv.fxi;
         }
+        currFixValues.append(QString::number(sv.channel));
+        // IMPORTANT: if a Scene is hidden, so used as a container by some Sequences,
+        // it must be saved with values set to zero
+        currFixValues.append(QString::number(isVisible() ? sv.value : 0));
+    }
+    /* write last element */
+    saveXMLFixtureValues(doc, currFixID, currFixValues);
+    writtenFixtures << currFixID;
 
-        saveXMLFixtureValues(doc, fxId, currFixValues);
+    // Write fixtures with no scene value
+    foreach(quint32 fixtureID, m_fixtures)
+    {
+        if (writtenFixtures.contains(fixtureID))
+            continue;
+
+        saveXMLFixtureValues(doc, fixtureID, QStringList());
     }
 
     /* End the <Function> tag */
