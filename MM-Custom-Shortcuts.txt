@@ -44,3 +44,4 @@ Shift-Cmd-N	New Folder
 Shift-Cmd-Right	Next Tab
 Shift-Cmd-Left	Previous Tab
 Shift-Cmd-Down	Switch between tab view and all channels view
+Shift-Cmd-Up	Copy current values to all (selected) fixtures
