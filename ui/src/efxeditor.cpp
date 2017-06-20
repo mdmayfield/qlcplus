@@ -196,7 +196,7 @@ void EFXEditor::initGeneralPage()
 
     /* Disable test button if we're in operate mode */
     if (m_doc->mode() == Doc::Operate)
-        m_testButton->setEnabled(false);
+        m_testButton->setEnabled(true); // Nope, keep it enabled
 }
 
 void EFXEditor::initMovementPage()

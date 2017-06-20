@@ -4,7 +4,7 @@
 
 APPNAME    = Q Light Controller Plus
 FXEDNAME   = Fixture Definition Editor
-APPVERSION = MM Custom-201705
+APPVERSION = MM Custom-201706
 
 # Disable these if you don't want to see GIT short hash in the About Box
 #unix:REVISION = $$system(git log --pretty=format:'%h' -n 1)
