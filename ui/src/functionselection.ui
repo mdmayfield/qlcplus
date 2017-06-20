@@ -40,15 +40,15 @@
        <property name="text">
         <string>&amp;All functions</string>
        </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
       </widget>
      </item>
      <item>
       <widget class="QRadioButton" name="m_runningFunctionsRadio">
        <property name="text">
         <string>&amp;Running functions</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
