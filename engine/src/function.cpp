@@ -675,6 +675,10 @@ QString Function::speedToString(uint ms)
     {
         str = QChar(0x221E); // Infinity symbol
     }
+    else if (ms == defaultSpeed())
+    {
+        str = QChar('d'); // Default speed
+    }
     else
     {
         uint h, m, s;
@@ -725,6 +729,9 @@ uint Function::stringToSpeed(QString speed)
 
     if (speed == QChar(0x221E) || speed == QChar('i')) // Infinity symbol
         return infiniteSpeed();
+
+    if (speed == QChar('d') || speed == QChar('D')) // Default
+        return defaultSpeed();
 
     value += speedSplit(speed, "h") * 1000 * 60 * 60;
     value += speedSplit(speed, "m") * 1000 * 60;
