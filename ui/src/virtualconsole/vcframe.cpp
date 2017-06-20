@@ -358,6 +358,9 @@ void VCFrame::createHeader()
 
 void VCFrame::setMultipageMode(bool enable)
 {
+    if (m_multiPageMode == enable)
+        return;
+
     if (enable == true)
     {
         if (m_prevPageBtn != NULL && m_nextPageBtn != NULL && m_pageCombo != NULL)
@@ -380,9 +383,14 @@ void VCFrame::setMultipageMode(bool enable)
         m_pageCombo->setFixedHeight(32);
         m_pageCombo->setFocusPolicy(Qt::NoFocus);
 
+        /** Add a single shortcut until setTotalPagesNumber kicks in */
+        addShortcut();
+
         m_pageCombo->setStyleSheet("QComboBox { background-color: black; color: red; margin-left: 2px; padding: 3px; }");
         if (m_hasCustomFont)
+        {
             m_pageCombo->setFont(font());
+        }
         else
         {
             QFont m_font = QApplication::font();
@@ -431,6 +439,7 @@ void VCFrame::setMultipageMode(bool enable)
     {
         if (m_prevPageBtn == NULL && m_nextPageBtn == NULL && m_pageCombo == NULL)
             return;
+
         resetShortcuts();
         m_hbox->removeWidget(m_prevPageBtn);
         m_hbox->removeWidget(m_pageCombo);

@@ -8,6 +8,7 @@ TARGET = qlcplus-qml
 
 QT += qml quick widgets svg
 QT += multimedia multimediawidgets
+QT += printsupport
 QT += 3dcore 3drender 3dquick 3dquickextras
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -28,7 +29,6 @@ DEFINES += MESHESDIR=\\\"$$INSTALLROOT/$$DATADIR/meshes\\\"
 HEADERS += \
     app.h \
     audioeditor.h \
-    actionmanager.h \
     chasereditor.h \
     collectioneditor.h \
     contextmanager.h \
@@ -49,12 +49,13 @@ HEADERS += \
     sceneeditor.h \
     showmanager.h \
     treemodel.h \
-    treemodelitem.h
+    treemodelitem.h \
+    videoeditor.h \
+    videoprovider.h
 
 SOURCES += main.cpp \
     app.cpp \
     audioeditor.cpp \
-    actionmanager.cpp \
     chasereditor.cpp \
     collectioneditor.cpp \
     contextmanager.cpp \
@@ -75,8 +76,9 @@ SOURCES += main.cpp \
     sceneeditor.cpp \
     showmanager.cpp \
     treemodel.cpp \
-    treemodelitem.cpp
-
+    treemodelitem.cpp \
+    videoeditor.cpp \
+    videoprovider.cpp
 
 #############################################
 #  Virtual Console

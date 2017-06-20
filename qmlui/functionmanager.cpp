@@ -28,6 +28,7 @@
 #include "chasereditor.h"
 #include "sceneeditor.h"
 #include "audioeditor.h"
+#include "videoeditor.h"
 #include "collection.h"
 #include "efxeditor.h"
 #include "treemodel.h"
@@ -60,10 +61,10 @@ FunctionManager::FunctionManager(QQuickView *view, Doc *doc, QObject *parent)
     m_currentEditor = NULL;
     m_sceneEditor = NULL;
 
-    qmlRegisterUncreatableType<Collection>("com.qlcplus.classes", 1, 0, "Collection", "Can't create a Collection");
-    qmlRegisterUncreatableType<Chaser>("com.qlcplus.classes", 1, 0, "Chaser", "Can't create a Chaser");
-    qmlRegisterUncreatableType<RGBMatrix>("com.qlcplus.classes", 1, 0, "RGBMatrix", "Can't create a RGBMatrix");
-    qmlRegisterUncreatableType<EFX>("com.qlcplus.classes", 1, 0, "EFX", "Can't create an EFX");
+    qmlRegisterUncreatableType<Collection>("org.qlcplus.classes", 1, 0, "Collection", "Can't create a Collection");
+    qmlRegisterUncreatableType<Chaser>("org.qlcplus.classes", 1, 0, "Chaser", "Can't create a Chaser");
+    qmlRegisterUncreatableType<RGBMatrix>("org.qlcplus.classes", 1, 0, "RGBMatrix", "Can't create a RGBMatrix");
+    qmlRegisterUncreatableType<EFX>("org.qlcplus.classes", 1, 0, "EFX", "Can't create an EFX");
 
     m_functionTree = new TreeModel(this);
     QQmlEngine::setObjectOwnership(m_functionTree, QQmlEngine::CppOwnership);
@@ -72,10 +73,8 @@ FunctionManager::FunctionManager(QQuickView *view, Doc *doc, QObject *parent)
     m_functionTree->setColumnNames(treeColumns);
     m_functionTree->enableSorting(true);
 
-    connect(m_doc, SIGNAL(loaded()),
-            this, SLOT(slotDocLoaded()));
-    connect(m_doc, SIGNAL(functionAdded(quint32)),
-            this, SLOT(slotFunctionAdded()));
+    connect(m_doc, &Doc::loaded, this, &FunctionManager::slotDocLoaded);
+    connect(m_doc, &Doc::functionAdded, this, &FunctionManager::slotFunctionAdded);
 }
 
 QVariant FunctionManager::functionsList()
@@ -442,6 +441,11 @@ void FunctionManager::setEditorFunction(quint32 fID, bool requestUI)
             m_currentEditor = new AudioEditor(m_view, m_doc, this);
         }
         break;
+        case Function::VideoType:
+        {
+            m_currentEditor = new VideoEditor(m_view, m_doc, this);
+        }
+        break;
         case Function::ShowType: break; // a Show is edited by the Show Manager
         default:
         {
@@ -505,7 +509,7 @@ void FunctionManager::deleteEditorItems(QVariantList list)
         m_currentEditor->deleteItems(list);
 }
 
-void FunctionManager::renameFunctions(QVariantList IDList, QString newName, int startNumber, int digits)
+void FunctionManager::renameFunctions(QVariantList IDList, QString newName, bool numbering, int startNumber, int digits)
 {
     if (IDList.isEmpty())
         return;
@@ -527,9 +531,14 @@ void FunctionManager::renameFunctions(QVariantList IDList, QString newName, int 
             if (f == NULL)
                 continue;
 
-            QString fName = QString("%1 %2").arg(newName.simplified()).arg(currNumber, digits, 10, QChar('0'));
-            f->setName(fName);
-            currNumber++;
+            if (numbering)
+            {
+                QString fName = QString("%1 %2").arg(newName.simplified()).arg(currNumber, digits, 10, QChar('0'));
+                f->setName(fName);
+                currNumber++;
+            }
+            else
+                f->setName(newName.simplified());
         }
     }
 
@@ -682,7 +691,7 @@ void FunctionManager::slotDocLoaded()
     updateFunctionsTree();
 }
 
-void FunctionManager::slotFunctionAdded()
+void FunctionManager::slotFunctionAdded(quint32)
 {
     if (m_doc->loadStatus() != Doc::Loaded)
         return;

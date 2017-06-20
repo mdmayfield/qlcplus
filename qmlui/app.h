@@ -22,6 +22,7 @@
 
 #include <QQmlEngine>
 #include <QQuickView>
+#include <QQuickItem>
 #include <QObject>
 #include "doc.h"
 
@@ -36,6 +37,7 @@ class FunctionManager;
 class QXmlStreamReader;
 class FixtureGroupEditor;
 class InputOutputManager;
+class VideoProvider;
 
 #define KXMLQLCWorkspace "Workspace"
 
@@ -110,6 +112,9 @@ protected:
     void keyPressEvent(QKeyEvent * e);
     void keyReleaseEvent(QKeyEvent * e);
 
+protected slots:
+    void slotScreenChanged(QScreen *screen);
+
 private:
     /** The number of pixels in one millimiter */
     qreal m_pixelDensity;
@@ -123,6 +128,7 @@ private:
     VirtualConsole *m_virtualConsole;
     ShowManager *m_showManager;
     ActionManager *m_actionManager;
+    VideoProvider *m_videoProvider;
 
     /*********************************************************************
      * Doc
@@ -146,6 +152,19 @@ signals:
 private:
     Doc* m_doc;
     bool m_docLoaded;
+
+    /*********************************************************************
+     * Printer
+     *********************************************************************/
+public:
+    /** Send $item content to a printer */
+    Q_INVOKABLE void printItem(QQuickItem *item);
+
+protected slots:
+    void slotItemReadyForPrinting();
+
+private:
+    QSharedPointer<QQuickItemGrabResult> m_printerImage;
 
     /*********************************************************************
      * Load & Save
