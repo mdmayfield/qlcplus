@@ -1256,15 +1256,6 @@ void VCWidget::mousePressEvent(QMouseEvent* e)
 {
     Q_ASSERT(e != NULL);
 
-    /* Intercept click if Control/Command is held, and open Live Edit Function */
-//    if (e->button() == Qt::LeftButton && e->modifiers() & Qt::ControlModifier)
-//    {
-//        QMessageBox msgBox;
-//        msgBox.setText(QStringLiteral("VCWidget: m_id for this is %1.").arg(m_id));
-//        msgBox.exec();
-//        return;
-//    }
-
     if (mode() == Doc::Operate)
     {
         QWidget::mousePressEvent(e);

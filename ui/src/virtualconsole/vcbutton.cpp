@@ -49,6 +49,7 @@
 #include "qlcmacros.h"
 #include "qlcfile.h"
 
+#include "functionliveeditdialog.h" // MM added
 #include "vcbuttonproperties.h"
 #include "vcpropertieseditor.h"
 #include "functionselection.h"
@@ -1081,10 +1082,12 @@ void VCButton::mousePressEvent(QMouseEvent* e)
     /* Intercept click if Control/Command is held, and open Live Edit Function */
     if (e->button() == Qt::LeftButton && e->modifiers() & Qt::ControlModifier)
     {
-        QMessageBox msgBox;
-        msgBox.setText(QStringLiteral("VCButton: m_function for this is %1.").arg(m_function));
-        msgBox.exec();
-        return;
+        if (m_function != Function::invalidId())
+        {
+            FunctionLiveEditDialog fle(m_doc, m_function, this);
+            fle.exec();
+            return;
+         }
     }
 
     if (mode() == Doc::Design)
