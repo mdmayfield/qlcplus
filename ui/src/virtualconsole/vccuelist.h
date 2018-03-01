@@ -396,7 +396,7 @@ public:
      * Event Handlers - MM Custom
      *********************************************************************/
 protected:
-    void mousePressEvent(QMouseEvent* e);
+    void mouseReleaseEvent(QMouseEvent* e);
 };
 
 /** @} */

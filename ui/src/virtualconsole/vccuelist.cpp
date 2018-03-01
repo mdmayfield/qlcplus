@@ -1224,8 +1224,12 @@ void VCCueList::stopStepIfNeeded(Chaser* ch)
 /*****************************************************************************
  * MM Custom: click to edit chaser or current function
  *****************************************************************************/
-void VCCueList::mousePressEvent(QMouseEvent* e)
+void VCCueList::mouseReleaseEvent(QMouseEvent* e)
 {
+
+	//Pass the event along to the parent object
+	VCWidget::mouseReleaseEvent(e);
+
     /* Intercept click if Control/Command is held, and open Live Edit Function */
     if (e->button() == Qt::LeftButton && e->modifiers() & Qt::ControlModifier)
     {
@@ -1245,7 +1249,7 @@ void VCCueList::mousePressEvent(QMouseEvent* e)
 		}
 
         if (fid != Function::invalidId())
-        {
+        {			
             FunctionLiveEditDialog fle(m_doc, fid, this);
             fle.exec();
             return;

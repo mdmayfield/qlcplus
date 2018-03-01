@@ -1079,20 +1079,9 @@ void VCButton::paintEvent(QPaintEvent* e)
 
 void VCButton::mousePressEvent(QMouseEvent* e)
 {
-    /* Intercept click if Control/Command is held, and open Live Edit Function */
-    if (e->button() == Qt::LeftButton && e->modifiers() & Qt::ControlModifier)
-    {
-        if (m_function != Function::invalidId())
-        {
-            FunctionLiveEditDialog fle(m_doc, m_function, this);
-            fle.exec();
-            return;
-         }
-    }
-
     if (mode() == Doc::Design)
         VCWidget::mousePressEvent(e);
-    else if (e->button() == Qt::LeftButton)
+    else if (e->button() == Qt::LeftButton && !(e->modifiers() & Qt::ControlModifier))
         pressFunction();
     else if (e->button() == Qt::RightButton)
     {
@@ -1145,6 +1134,18 @@ void VCButton::mousePressEvent(QMouseEvent* e)
 
 void VCButton::mouseReleaseEvent(QMouseEvent* e)
 {
+
+    /* Intercept click if Control/Command is held, and open Live Edit Function */
+    if (e->button() == Qt::LeftButton && e->modifiers() & Qt::ControlModifier)
+    {
+        if (m_function != Function::invalidId())
+        {
+            FunctionLiveEditDialog fle(m_doc, m_function, this);
+            fle.exec();
+            return;
+         }
+    }
+
     if (mode() == Doc::Design)
         VCWidget::mouseReleaseEvent(e);
     else
