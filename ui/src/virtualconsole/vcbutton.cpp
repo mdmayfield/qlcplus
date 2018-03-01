@@ -49,7 +49,7 @@
 #include "qlcmacros.h"
 #include "qlcfile.h"
 
-#include "functionliveeditdialog.h" // MM added
+#include "functionliveeditdialog.h"
 #include "vcbuttonproperties.h"
 #include "vcpropertieseditor.h"
 #include "functionselection.h"

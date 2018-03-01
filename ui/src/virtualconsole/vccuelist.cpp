@@ -34,6 +34,7 @@
 #include <QDebug>
 #include <QTimer>
 
+#include "functionliveeditdialog.h"
 #include "vccuelistproperties.h"
 #include "vcpropertieseditor.h"
 #include "clickandgoslider.h"
@@ -1218,6 +1219,26 @@ void VCCueList::stopStepIfNeeded(Chaser* ch)
         ch->stopStep(m_secondaryIndex);
     }
 }
+
+
+/*****************************************************************************
+ * MM Custom: click to edit chaser or current function
+ *****************************************************************************/
+void VCCueList::mousePressEvent(QMouseEvent* e)
+{
+    /* Intercept click if Control/Command is held, and open Live Edit Function */
+    if (e->button() == Qt::LeftButton && e->modifiers() & Qt::ControlModifier)
+    {
+        if (m_chaserID != Function::invalidId())
+        {
+            FunctionLiveEditDialog fle(m_doc, m_chaserID, this);
+            fle.exec();
+            return;
+         }
+    }
+}
+
+
 
 /*****************************************************************************
  * Key Sequences

@@ -391,6 +391,12 @@ public:
 
     /** @reimp */
     bool saveXML(QXmlStreamWriter *doc);
+
+    /*********************************************************************
+     * Event Handlers - MM Custom
+     *********************************************************************/
+protected:
+    void mousePressEvent(QMouseEvent* e);
 };
 
 /** @} */
