@@ -1229,13 +1229,28 @@ void VCCueList::mousePressEvent(QMouseEvent* e)
     /* Intercept click if Control/Command is held, and open Live Edit Function */
     if (e->button() == Qt::LeftButton && e->modifiers() & Qt::ControlModifier)
     {
-        if (m_chaserID != Function::invalidId())
+		Chaser* ch = chaser();
+		if (ch == NULL)
+			return;
+
+		quint32 fid = m_chaserID;
+
+		if (e->modifiers() & Qt::ShiftModifier)
+		{
+			ChaserStep* step = ch->stepAt(ch->currentStepIndex());
+			if (step == NULL)
+				return;
+			Function* function = m_doc->function(step->fid);
+			fid = function->id();
+		}
+
+        if (fid != Function::invalidId())
         {
-            FunctionLiveEditDialog fle(m_doc, m_chaserID, this);
+            FunctionLiveEditDialog fle(m_doc, fid, this);
             fle.exec();
             return;
          }
-    }
+	}
 }
 
 
