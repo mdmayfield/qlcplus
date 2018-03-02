@@ -59,7 +59,7 @@ FunctionSelection::FunctionSelection(QWidget* parent, Doc* doc)
     , m_newTrack(false)
     , m_newTrackItem(NULL)
     , m_multiSelection(true)
-    , m_runningOnlyFlag(true)
+    , m_runningOnlyFlag(false)
     , m_filter(Function::SceneType | Function::ChaserType | Function::SequenceType | Function::CollectionType |
                Function::EFXType | Function::ScriptType | Function::RGBMatrixType | Function::ShowType | Function::AudioType
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
