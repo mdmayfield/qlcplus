@@ -20,9 +20,11 @@
 #include <QSettings>
 
 #include "functionliveeditdialog.h"
+#include "collectioneditor.h"
 #include "rgbmatrixeditor.h"
 #include "chasereditor.h"
 #include "sceneeditor.h"
+#include "collection.h"
 #include "efxeditor.h"
 #include "rgbmatrix.h"
 #include "chaser.h"
@@ -80,6 +82,9 @@ FunctionLiveEditDialog::FunctionLiveEditDialog(Doc *doc, quint32 fid, QWidget *p
         break;
         case Function::RGBMatrixType:
             m_editor = new RGBMatrixEditor(m_scrollArea, qobject_cast<RGBMatrix*> (func), m_doc);
+        break;
+        case Function::CollectionType:
+            m_editor = new CollectionEditor(m_scrollArea, qobject_cast<Collection*> (func), m_doc);
         break;
         default:
         break;
