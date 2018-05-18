@@ -145,8 +145,7 @@ void SceneEditor::slotFunctionManagerActive(bool active)
 
 void SceneEditor::slotSetSceneValues(QList <SceneValue>&sceneValues)
 {
-    FixtureConsole* fc;
-    Fixture* fixture;
+    Fixture *fixture;
 
     QListIterator <SceneValue> it(sceneValues);
 
@@ -157,7 +156,7 @@ void SceneEditor::slotSetSceneValues(QList <SceneValue>&sceneValues)
         fixture = m_doc->fixture(sv.fxi);
         Q_ASSERT(fixture != NULL);
 
-        fc = fixtureConsole(fixture);
+        FixtureConsole *fc = fixtureConsole(fixture);
         if (fc != NULL)
             fc->setSceneValue(sv);
     }
@@ -736,7 +735,7 @@ QColor SceneEditor::slotColorSelectorChanged(const QColor& color)
         {
             Fixture* fxi = m_doc->fixture(cc->fixture());
             Q_ASSERT(fxi != NULL);
-            const QLCChannel *ch = fxi->channel(cc->channel());
+            const QLCChannel *ch = fxi->channel(cc->channelIndex());
             if (ch->group() == QLCChannel::Intensity)
             {
                 if (ch->colour() == QLCChannel::Red)
@@ -816,7 +815,7 @@ void SceneEditor::slotPositionSelectorChanged(const QPointF& position)
         {
             Fixture* fxi = m_doc->fixture(cc->fixture());
             Q_ASSERT(fxi != NULL);
-            const QLCChannel *ch = fxi->channel(cc->channel());
+            const QLCChannel *ch = fxi->channel(cc->channelIndex());
             if (ch->group() == QLCChannel::Pan)
             {
                 if (ch->controlByte() == QLCChannel::MSB)
@@ -1049,7 +1048,7 @@ bool SceneEditor::isColorToolAvailable()
         {
             fxi = m_doc->fixture(cc->fixture());
             Q_ASSERT(fxi != NULL);
-            const QLCChannel *ch = fxi->channel(cc->channel());
+            const QLCChannel *ch = fxi->channel(cc->channelIndex());
             if (ch->group() == QLCChannel::Intensity)
             {
                 if (ch->colour() == QLCChannel::Red)
@@ -1111,7 +1110,7 @@ bool SceneEditor::isPositionToolAvailable()
         {
             fxi = m_doc->fixture(cc->fixture());
             Q_ASSERT(fxi != NULL);
-            const QLCChannel *ch = fxi->channel(cc->channel());
+            const QLCChannel *ch = fxi->channel(cc->channelIndex());
             if (ch->group() == QLCChannel::Pan || ch->group() == QLCChannel::Tilt)
                 return true;
         }

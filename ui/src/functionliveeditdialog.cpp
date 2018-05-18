@@ -27,6 +27,7 @@
 #include "collection.h"
 #include "efxeditor.h"
 #include "rgbmatrix.h"
+#include "sequence.h"
 #include "chaser.h"
 #include "scene.h"
 #include "doc.h"
@@ -75,6 +76,7 @@ FunctionLiveEditDialog::FunctionLiveEditDialog(Doc *doc, quint32 fid, QWidget *p
         }
         break;
         case Function::ChaserType:
+        case Function::SequenceType:
             m_editor = new ChaserEditor(m_scrollArea, qobject_cast<Chaser*> (func), m_doc, true);
         break;
         case Function::EFXType:
@@ -89,6 +91,7 @@ FunctionLiveEditDialog::FunctionLiveEditDialog(Doc *doc, quint32 fid, QWidget *p
         default:
         break;
     }
+
     if (m_editor != NULL)
     {
         m_scrollArea->setWidget(m_editor);
