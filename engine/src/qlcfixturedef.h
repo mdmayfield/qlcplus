@@ -146,11 +146,11 @@ public:
     QString author();
 
     /** Check if the full definition has been loaded */
-    void checkLoaded();
+    void checkLoaded(QString mapPath);
 
 protected:
     bool m_isLoaded;
-    QString m_defFileAbsolutePath;
+    QString m_relativePath;
     QString m_manufacturer;
     QString m_model;
     FixtureType m_type;
