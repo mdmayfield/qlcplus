@@ -171,6 +171,7 @@ Rectangle
 
             onPaint:
             {
+                var context = getContext("2d")
                 context.globalAlpha = 1.0
                 context.strokeStyle = "#5F5F5F"
                 context.fillStyle = "black"
@@ -212,9 +213,9 @@ Rectangle
                 onPressed:
                 {
                     console.log("button: " + mouse.button + ", mods: " + mouse.modifiers)
-                    var fixtureID = View2D.fixtureAtPos(Qt.point(mouse.x, mouse.y))
+                    var itemID = View2D.itemIDAtPos(Qt.point(mouse.x, mouse.y))
 
-                    if (fixtureID === -1)
+                    if (itemID === -1)
                     {
                         //console.log("Flickable shift-clicked !")
                         // initialize local variables to determine the selection orientation
@@ -229,11 +230,11 @@ Rectangle
                     }
                     else
                     {
-                        if (contextManager.isFixtureSelected(fixtureID) === false)
+                        if (contextManager.isFixtureSelected(itemID) === false)
                             twoDContents.justSelected = true
 
                         // select the Fixture in case a drag is starting on a deselected one
-                        contextManager.setFixtureSelection(fixtureID, true)
+                        contextManager.setItemSelection(itemID, true)
 
                         // forward the event to the drag area
                         mouse.accepted = false
@@ -361,10 +362,10 @@ Rectangle
                             if (twoDContents.justSelected == false)
                             {
                                 // handle Fixture selection/deselection here
-                                var fixtureID = View2D.fixtureAtPos(Qt.point(mouse.x, mouse.y))
+                                var itemID = View2D.itemIDAtPos(Qt.point(mouse.x, mouse.y))
 
-                                console.log("Fixture ID on release " + fixtureID)
-                                contextManager.setFixtureSelection(fixtureID, false)
+                                console.log("Fixture ID on release " + itemID)
+                                contextManager.setItemSelection(itemID, false)
                             }
                             twoDContents.justSelected = false
                         }

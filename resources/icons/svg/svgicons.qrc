@@ -70,6 +70,7 @@
     <file alias="green.svg">green.svg</file>
     <file alias="grid.svg">grid.svg</file>
     <file alias="group.svg">group.svg</file>
+    <file alias="hazer.svg">hazer.svg</file>
     <file alias="help.svg">help.svg</file>
     <file alias="hidplugin.svg">hidplugin.svg</file>
     <file alias="import.svg">import.svg</file>
@@ -108,6 +109,7 @@
     <file alias="rotate-right.svg">rotate-right.svg</file>
     <file alias="selectall.svg">selectall.svg</file>
     <file alias="sequence.svg">sequence.svg</file>
+    <file alias="scanner.svg">scanner.svg</file>
     <file alias="scene.svg">scene.svg</file>
     <file alias="script.svg">script.svg</file>
     <file alias="showmanager.svg">showmanager.svg</file>
@@ -115,6 +117,7 @@
     <file alias="simpledesk.svg">simpledesk.svg</file>
     <file alias="slider.svg">slider.svg</file>
     <file alias="sliders.svg">sliders.svg</file>
+    <file alias="smoke.svg">smoke.svg</file>
     <file alias="soloframe.svg">soloframe.svg</file>
     <file alias="speed.svg">speed.svg</file>
     <file alias="star.svg">star.svg</file>

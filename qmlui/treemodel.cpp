@@ -48,15 +48,17 @@ void TreeModel::clear()
     if (itemsCount == 0)
         return;
 
-    beginRemoveRows(QModelIndex(), 0, itemsCount - 1);
     for (int i = 0; i < itemsCount; i++)
     {
         TreeModelItem *item = m_items.takeLast();
+        if (item->hasChildren())
+            item->children()->clear();
+        beginRemoveRows(QModelIndex(), 0, itemsCount - 1);
         delete item;
+        endRemoveRows();
     }
     m_items.clear();
     m_itemsPathMap.clear();
-    endRemoveRows();
 }
 
 void TreeModel::setColumnNames(QStringList names)
@@ -105,8 +107,9 @@ TreeModelItem *TreeModel::addItem(QString label, QVariantList data, QString path
 
     TreeModelItem *item = NULL;
 
-    if (data.count() != m_roles.count())
-        qDebug() << "Adding an item with a different number of roles" << data.count() << m_roles.count();
+    // fewer roles are allowed, while exceeding are probably a mistake
+    if (data.count() > m_roles.count())
+        qDebug() << "Item roles exceeds tree roles !" << data.count() << m_roles.count();
 
     if (m_checkable)
         flags |= Checkable;
@@ -183,16 +186,13 @@ void TreeModel::setItemRoleData(QString path, const QVariant &value, int role)
 
     QStringList pathList = path.split(TreeModel::separator());
 
-    if (pathList.count() == 2)
+    if (pathList.count() == 1)
     {
         int index = 0;
         for (int i = 0; i < m_items.count(); i++)
         {
-            if (m_items.at(i)->hasChildren() == false)
-            {
-                if (m_items.at(i)->label() == pathList.at(1))
-                    break;
-            }
+            if (m_items.at(i)->label() == pathList.at(0))
+                break;
             index++;
         }
 
@@ -244,6 +244,11 @@ void TreeModel::setPathData(QString path, QVariantList data)
             item->children()->setPathData(subPath, data);
         }
     }
+}
+
+int TreeModel::roleIndex(QString role)
+{
+    return roleNames().key(role.toLatin1(), -1);
 }
 
 int TreeModel::rowCount(const QModelIndex &parent) const
@@ -298,7 +303,7 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
     TreeModelItem *item = m_items.at(itemRow);
 
-    //qDebug() << "Settig role" << role << "on row" << itemRow << "with value" << value;
+    //qDebug() << "Setting role" << role << "on row" << itemRow << "with value" << value;
 
     switch(role)
     {
@@ -333,7 +338,7 @@ bool TreeModel::setData(const QModelIndex &index, const QVariant &value, int rol
             item->setFlag(Draggable, value.toBool());
         break;
         default:
-            return false;
+            item->setRoleData(role - FixedRolesEnd, value);
         break;
     }
 

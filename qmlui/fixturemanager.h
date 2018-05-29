@@ -28,12 +28,14 @@
 #include <QDir>
 
 #include "scenevalue.h"
-#include "treemodel.h"
 
 class Doc;
 class Fixture;
+class TreeModel;
+class TreeModelItem;
 class FixtureGroup;
 class ColorFilters;
+class MonitorProperties;
 
 class FixtureManager : public QObject
 {
@@ -99,6 +101,8 @@ private:
     QQuickView *m_view;
     /** Reference to the project workspace */
     Doc *m_doc;
+    /** Reference to the Doc Monitor properties */
+    MonitorProperties *m_monProps;
     /** A filter for m_fixturesMap to restrict data to a specific universe */
     quint32 m_universeFilter;
     /** A string to filter the displayed tree items */
@@ -114,9 +118,31 @@ private:
 public:
     enum
     {
-        GroupMatch = (1 << 0),
+        ShowCheckBoxes  = (1 << 0),
+        ShowGroups      = (1 << 1),
+        ShowChannels    = (1 << 2),
+        ShowHeads       = (1 << 3),
+        ShowFlags       = (1 << 4),
+        ShowCanFade     = (1 << 5),
+        ShowPrecedence  = (1 << 6),
+        ShowModifier    = (1 << 7)
+    };
+
+    enum PrecedenceType
+    {
+        AutoHTP = 0,
+        AutoLTP,
+        ForcedHTP,
+        ForcedLTP
+    };
+    Q_ENUM(PrecedenceType)
+
+    enum
+    {
+        GroupMatch   = (1 << 0),
         FixtureMatch = (1 << 1),
-        ChannelMatch = (1 << 2)
+        HeadMatch    = (1 << 2),
+        ChannelMatch = (1 << 3)
     };
 
     /** Returns a constant value for an invalid Fixture ID */
@@ -143,13 +169,23 @@ public:
     /** Returns the data model to display a tree of Fixture Groups/Fixtures */
     QVariant groupsTreeModel();
 
+    /** Enable/Disable the fixture/channel properties editing mode */
+    Q_INVOKABLE void enablePropertyEditing(bool enable);
+
+    Q_INVOKABLE void setItemRoleData(int itemID, int index, QString role, QVariant value);
+
+    static void addFixtureNode(Doc *doc, TreeModel *treeModel, Fixture *fixture, QString basePath, quint32 nodeSubID,
+                               int &matchMask, QString searchFilter = QString(), int showFlags = ShowGroups | ShowHeads,
+                               QList<SceneValue> checkedChannels = QList<SceneValue>());
+
     static void addFixtureGroupTreeNode(Doc *doc, TreeModel *treeModel, FixtureGroup *group,
-                                        QString searchFilter = QString(), bool showChannels = true,
+                                        QString searchFilter = QString(), int showFlags = ShowGroups | ShowHeads,
                                         QList<SceneValue> checkedChannels = QList<SceneValue>());
 
     /** Update the tree of groups/fixtures/channels */
     static void updateGroupsTree(Doc *doc, TreeModel *treeModel, QString searchFilter = QString(),
-                                 bool showChannels = true, QList<SceneValue> checkedChannels = QList<SceneValue>());
+                                 int showFlags = ShowGroups | ShowHeads,
+                                 QList<SceneValue> checkedChannels = QList<SceneValue>());
 
     /** Return the type as string of the Fixture with ID $fixtureID */
     Q_INVOKABLE QString fixtureIcon(quint32 fixtureID);
@@ -168,6 +204,8 @@ signals:
     /** Notify the listeners that a fixture has been deleted */
     void fixtureDeleted(quint32 fxID);
 
+    void fixtureFlagsChanged(quint32 itemID, quint32 flags);
+
 private:
     /** Comparison method to sort a Fixture list by DMX address */
     static bool compareFixtures(Fixture *left, Fixture *right);
@@ -177,6 +215,8 @@ private:
     QList<Fixture *> m_fixtureList;
     /** Data model used by the QML UI to represent groups/fixtures/channels */
     TreeModel *m_fixtureTree;
+    /** Current flags being used for filling the tree data */
+    int m_treeShowFlags;
 
     /*********************************************************************
      * Fixture groups
@@ -312,11 +352,12 @@ public:
 
     /**
      * @brief setFixtureCapabilities
-     * @param fxID the Fixture unique ID
+     * @param itemID the preview item ID
+     * @param headIndex index of the head to consider or -1 to not considering it at all
      * @param enable used to increment/decrement the UI tools counters
      * @return A multihash containg the fixture capabilities by channel type
      */
-    QMultiHash<int, SceneValue> getFixtureCapabilities(quint32 fxID, bool enable);
+    QMultiHash<int, SceneValue> getFixtureCapabilities(quint32 itemID, int headIndex, bool enable);
 
     /** Reset any previously elapsed capability */
     void resetCapabilities();

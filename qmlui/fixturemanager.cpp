@@ -30,8 +30,10 @@
 #include "qlcfixturemode.h"
 #include "qlccapability.h"
 #include "qlcfixturedef.h"
+#include "treemodelitem.h"
 #include "colorfilters.h"
 #include "fixtureutils.h"
+#include "treemodel.h"
 #include "qlcconfig.h"
 #include "qlcfile.h"
 #include "fixture.h"
@@ -46,6 +48,7 @@ FixtureManager::FixtureManager(QQuickView *view, Doc *doc, QObject *parent)
     , m_universeFilter(Universe::invalid())
     , m_searchFilter(QString())
     , m_fixtureTree(NULL)
+    , m_treeShowFlags(ShowGroups | ShowHeads)
     , m_colorFilterIndex(0)
     , m_maxPanDegrees(0)
     , m_maxTiltDegrees(0)
@@ -54,6 +57,8 @@ FixtureManager::FixtureManager(QQuickView *view, Doc *doc, QObject *parent)
     , m_colorsMask(0)
 {
     Q_ASSERT(m_doc != NULL);
+
+    m_monProps = m_doc->monitorProperties();
 
     m_view->rootContext()->setContextProperty("fixtureManager", this);
     qmlRegisterUncreatableType<FixtureManager>("org.qlcplus.classes", 1, 0,  "FixtureManager", "Can't create a FixtureManager !");
@@ -102,7 +107,7 @@ void FixtureManager::setSearchFilter(QString searchFilter)
     if (searchFilter.length() >= SEARCH_MIN_CHARS ||
         (currLen >= SEARCH_MIN_CHARS && searchFilter.length() < SEARCH_MIN_CHARS))
     {
-        updateGroupsTree(m_doc, m_fixtureTree, m_searchFilter);
+        updateGroupsTree(m_doc, m_fixtureTree, m_searchFilter, m_treeShowFlags);
         emit groupsTreeModelChanged();
     }
 
@@ -318,8 +323,6 @@ bool FixtureManager::moveFixture(quint32 fixtureID, quint32 newAddress)
 
 bool FixtureManager::deleteFixtures(QVariantList IDList)
 {
-    MonitorProperties *mProps = m_doc->monitorProperties();
-
     for (QVariant id : IDList)
     {
         quint32 itemID = id.toUInt();
@@ -328,8 +331,8 @@ bool FixtureManager::deleteFixtures(QVariantList IDList)
         quint16 linkedIndex = FixtureUtils::itemLinkedIndex(itemID);
 
         Tardis::instance()->enqueueAction(Tardis::FixtureSetPosition, itemID,
-                                          QVariant(mProps->fixturePosition(fxID, headIndex, linkedIndex)), QVariant());
-        mProps->removeFixture(fxID, headIndex, linkedIndex);
+                                          QVariant(m_monProps->fixturePosition(fxID, headIndex, linkedIndex)), QVariant());
+        m_monProps->removeFixture(fxID, headIndex, linkedIndex);
         Tardis::instance()->enqueueAction(Tardis::FixtureDelete, itemID,
                                           Tardis::instance()->actionToByteArray(Tardis::FixtureDelete, fxID),
                                           QVariant());
@@ -371,10 +374,113 @@ QVariant FixtureManager::groupsTreeModel()
         treeColumns << "classRef" << "type" << "id" << "subid" << "chIdx";
         m_fixtureTree->setColumnNames(treeColumns);
         m_fixtureTree->enableSorting(false);
-        updateGroupsTree(m_doc, m_fixtureTree, m_searchFilter);
+        updateGroupsTree(m_doc, m_fixtureTree, m_searchFilter, m_treeShowFlags);
     }
 
     return QVariant::fromValue(m_fixtureTree);
+}
+
+void FixtureManager::enablePropertyEditing(bool enable)
+{
+    QStringList treeColumns;
+    treeColumns << "classRef" << "type" << "id" << "subid" << "chIdx";
+
+    if (enable)
+    {
+        m_treeShowFlags = ShowChannels | ShowFlags | ShowCanFade | ShowPrecedence | ShowModifier;
+        treeColumns << "flags" << "canFade" << "precedence" << "modifier";
+    }
+    else
+    {
+        m_treeShowFlags = ShowGroups | ShowHeads;
+    }
+
+    m_fixtureTree->setColumnNames(treeColumns);
+    updateGroupsTree(m_doc, m_fixtureTree, m_searchFilter, m_treeShowFlags);
+    emit groupsTreeModelChanged();
+}
+
+void FixtureManager::setItemRoleData(int itemID, int index, QString role, QVariant value)
+{
+    quint32 fixtureID = FixtureUtils::itemFixtureID(itemID);
+    quint16 headIndex = FixtureUtils::itemHeadIndex(itemID);
+    quint16 linkedIndex = FixtureUtils::itemLinkedIndex(itemID);
+
+    Fixture *fixture = m_doc->fixture(fixtureID);
+    if (fixture == NULL)
+        return;
+
+    const QLCChannel *channel = index == -1 ? NULL : fixture->channel(index);
+    if (index >= 0 && channel == NULL)
+        return;
+
+    qDebug() << "Set fixture data" << fixture->name() << role << value;
+
+    if (role == "flags")
+    {
+        if (index == -1)
+        {
+            m_monProps->setFixtureFlags(fixtureID, headIndex, linkedIndex, value.toUInt());
+            emit fixtureFlagsChanged(itemID, value.toUInt());
+        }
+        else
+        {
+            // TODO: flags per channel ?
+        }
+    }
+    else if (role == "canFade")
+    {
+        fixture->setChannelCanFade(index, value.toBool());
+    }
+    else if (role == "precedence")
+    {
+        QList<int> forcedHTP = fixture->forcedHTPChannels();
+        QList<int> forcedLTP = fixture->forcedLTPChannels();
+
+        int newMode = value.toInt();
+        switch (newMode)
+        {
+            case AutoHTP:
+            case AutoLTP:
+                forcedHTP.removeOne(index);
+                forcedLTP.removeOne(index);
+            break;
+            case ForcedHTP:
+                if (channel->group() != QLCChannel::Intensity)
+                    forcedHTP.append(index);
+            break;
+            case ForcedLTP:
+                if (channel->group() == QLCChannel::Intensity)
+                    forcedLTP.append(index);
+            break;
+        }
+
+        fixture->setForcedHTPChannels(forcedHTP);
+        fixture->setForcedLTPChannels(forcedLTP);
+    }
+
+    // now reconstruct the item path and change the role of the tree model
+    QString path;
+    QStringList uniNames = m_doc->inputOutputMap()->universeNames();
+    int roleIndex = m_fixtureTree->roleIndex(role);
+
+    if (index == -1)
+    {
+        // change happened on a fixture node
+        path = QString("%1%2%3").arg(uniNames.at(fixture->universe()))
+                                .arg(TreeModel::separator()).arg(fixture->name());
+    }
+    else
+    {
+        // change happened on a channel node
+        path = QString("%1%2%3%2%4").arg(uniNames.at(fixture->universe()))
+                                    .arg(TreeModel::separator()).arg(fixture->name())
+                                    .arg(channel->name());
+    }
+
+    //qDebug() << "Path" << path << ", role index" << roleIndex;
+
+    m_fixtureTree->setItemRoleData(path, value, roleIndex);
 }
 
 bool FixtureManager::compareFixtures(Fixture *left, Fixture *right)
@@ -382,18 +488,145 @@ bool FixtureManager::compareFixtures(Fixture *left, Fixture *right)
     return *left < *right;
 }
 
+void FixtureManager::addFixtureNode(Doc *doc, TreeModel *treeModel, Fixture *fixture,
+                                    QString basePath, quint32 nodeSubID,
+                                    int &matchMask, QString searchFilter,
+                                    int showFlags, QList<SceneValue> checkedChannels)
+{
+    if (doc == NULL || treeModel == NULL || fixture == NULL)
+        return;
+
+    MonitorProperties *monProps = doc->monitorProperties();
+    bool expandAll = searchFilter.length() >= SEARCH_MIN_CHARS;
+
+    if (searchFilter.length() < SEARCH_MIN_CHARS || fixture->name().toLower().contains(searchFilter))
+        matchMask |= FixtureMatch;
+
+    for (quint32 subID : monProps->fixtureIDList(fixture->id()))
+    {
+        quint16 headIndex = monProps->fixtureHeadIndex(subID);
+        quint16 linkedIndex = monProps->fixtureLinkedIndex(subID);
+        quint32 itemID = FixtureUtils::fixtureItemID(fixture->id(), headIndex, linkedIndex);
+
+        // represent dimmers as a whole fixture + (channels || heads)
+        if (fixture->type() == QLCFixtureDef::Dimmer && headIndex > 0)
+            continue;
+
+        QString fxPath = QString("%1%2%3").arg(basePath).arg(TreeModel::separator()).arg(fixture->name());
+
+        if (showFlags & ShowHeads)
+        {
+            if (matchMask && fixture->heads() > 1)
+            {
+                for (int headIdx = 0; headIdx < fixture->heads(); headIdx++)
+                {
+                    quint32 iID = itemID;
+                    if (fixture->type() == QLCFixtureDef::Dimmer)
+                        iID = FixtureUtils::fixtureItemID(fixture->id(), headIdx, linkedIndex);
+
+                    QVariantList headParams;
+                    headParams.append(QVariant::fromValue(fixture)); // classRef
+                    headParams.append(App::HeadDragItem); // type
+                    headParams.append(iID); // id
+                    headParams.append(nodeSubID); // subid
+                    headParams.append(headIdx); // chIdx
+                    treeModel->addItem(QString("%1 %2").arg(tr("Head")).arg(headIdx + 1, 3, 10, QChar('0')),
+                                       headParams, fxPath);
+                }
+            }
+        }
+        else if ((showFlags & ShowChannels) && linkedIndex == 0) // do not display channels for linked fixtures
+        {
+            int chIdx = 0;
+            QList<int> forcedHTP = fixture->forcedHTPChannels();
+            QList<int> forcedLTP = fixture->forcedLTPChannels();
+
+            QLCFixtureMode *mode = fixture->fixtureMode();
+            if (mode == NULL)
+                continue;
+
+            for (QLCChannel *channel : mode->channels()) // C++11
+            {
+                if (matchMask || searchFilter.length() < SEARCH_MIN_CHARS ||
+                    channel->name().toLower().contains(searchFilter))
+                {
+                    int flags = expandAll ? TreeModel::Expanded : 0;
+                    if (checkedChannels.contains(SceneValue(fixture->id(), chIdx)))
+                        flags |= TreeModel::Checked;
+
+                    QVariantList chParams;
+                    chParams.append(QVariant::fromValue(fixture)); // classRef
+                    chParams.append(App::ChannelDragItem); // type
+                    chParams.append(itemID); // id
+                    chParams.append(nodeSubID); // subid
+                    chParams.append(chIdx); // chIdx
+
+                    if (showFlags & ShowFlags)
+                        chParams.append(0); // might be useful in the future
+
+                    if (showFlags & ShowCanFade)
+                        chParams.append(fixture->channelCanFade(chIdx)); // canFade
+
+                    if (showFlags & ShowPrecedence)
+                    {
+                        if (forcedHTP.contains(chIdx))
+                            chParams.append(ForcedHTP);
+                        else if (forcedLTP.contains(chIdx))
+                            chParams.append(ForcedLTP);
+                        else
+                        {
+                            if (channel->group() == QLCChannel::Intensity)
+                                chParams.append(AutoHTP);
+                            else
+                                chParams.append(AutoLTP);
+                        }
+                    }
+
+                    if (showFlags & ShowModifier)
+                    {
+                        // TODO
+                        chParams.append("");
+                    }
+
+                    treeModel->addItem(channel->name(), chParams, fxPath, flags);
+                    matchMask |= ChannelMatch;
+                }
+                chIdx++;
+            }
+        }
+
+        if (matchMask)
+        {
+            // when all the channel/head 'leaves' have been added, set the parent node data
+            QVariantList fxParams;
+            fxParams.append(QVariant::fromValue(fixture)); // classRef
+            fxParams.append(App::FixtureDragItem); // type
+            fxParams.append(itemID); // id
+            fxParams.append(nodeSubID); // subid
+            fxParams.append(0); // chIdx
+
+            if (showFlags & ShowFlags)
+                fxParams.append(monProps->fixtureFlags(fixture->id(), headIndex, linkedIndex));
+
+            if (showFlags & ShowChannels || fixture->heads() > 1)
+                treeModel->setPathData(fxPath, fxParams);
+            else
+                treeModel->addItem(fixture->name(), fxParams, basePath, expandAll ? TreeModel::Expanded : 0);
+        }
+    }
+}
+
 void FixtureManager::addFixtureGroupTreeNode(Doc *doc, TreeModel *treeModel, FixtureGroup *group,
-                                             QString searchFilter, bool showChannels,
+                                             QString searchFilter, int showFlags,
                                              QList<SceneValue> checkedChannels)
 {
-    int matchFound = 0;
-    bool expandAll = searchFilter.length() >= SEARCH_MIN_CHARS;
+    int matchMask = 0;
 
     if (doc == NULL || treeModel == NULL || group == NULL)
         return;
 
     if (searchFilter.length() < SEARCH_MIN_CHARS || group->name().toLower().contains(searchFilter))
-        matchFound |= GroupMatch;
+        matchMask |= GroupMatch;
 
     for (quint32 fxID : group->fixtureList())
     {
@@ -401,150 +634,63 @@ void FixtureManager::addFixtureGroupTreeNode(Doc *doc, TreeModel *treeModel, Fix
         if (fixture == NULL)
             continue;
 
-        QLCFixtureMode *mode = fixture->fixtureMode();
-        if (mode == NULL)
-            continue;
+        int fxMatchMask = 0;
 
-        if (searchFilter.length() < SEARCH_MIN_CHARS || fixture->name().toLower().contains(searchFilter))
-            matchFound |= FixtureMatch;
-
-
-        QString chPath = QString("%1%2%3").arg(group->name()).arg(TreeModel::separator()).arg(fixture->name());
-
-        if (showChannels)
-        {
-            int chIdx = 0;
-            for (QLCChannel *channel : mode->channels()) // C++11
-            {
-                if ((matchFound & GroupMatch) || (matchFound & FixtureMatch) ||
-                    searchFilter.length() < SEARCH_MIN_CHARS ||
-                    channel->name().toLower().contains(searchFilter))
-                {
-                    QVariantList chParams;
-                    int flags = expandAll ? TreeModel::Expanded : 0;
-
-                    if (checkedChannels.contains(SceneValue(fixture->id(), chIdx)))
-                        flags |= TreeModel::Checked;
-
-                    chParams.append(QVariant::fromValue(NULL)); // classRef
-                    chParams.append(App::ChannelDragItem); // type
-                    chParams.append(fixture->id()); // id
-                    chParams.append(group->id()); // subid
-                    chParams.append(chIdx); // chIdx
-
-                    treeModel->addItem(channel->name(), chParams, chPath, flags);
-                    matchFound |= ChannelMatch;
-                }
-                chIdx++;
-            }
-        }
-
-        if (matchFound)
-        {
-            // when all the channel 'leaves' have been added, set the parent node data
-            QVariantList fxParams;
-            fxParams.append(QVariant::fromValue(fixture)); // classRef
-            fxParams.append(App::FixtureDragItem); // type
-            fxParams.append(fixture->id()); // id
-            fxParams.append(group->id()); // subid
-            fxParams.append(0); // chIdx
-
-            if (showChannels)
-                treeModel->setPathData(chPath, fxParams);
-            else
-                treeModel->addItem(fixture->name(), fxParams, group->name(), expandAll ? TreeModel::Expanded : 0);
-        }
+        addFixtureNode(doc, treeModel, fixture, group->name(), group->id(),
+                       fxMatchMask, searchFilter, showFlags, checkedChannels);
+        if (fxMatchMask)
+            matchMask |= FixtureMatch;
     }
 
-    if (matchFound)
+    if (matchMask)
     {
         // add also the fixture group data
         QVariantList grpParams;
         grpParams.append(QVariant::fromValue(group)); // classRef
         grpParams.append(App::FixtureGroupDragItem); // type
         grpParams.append(group->id()); // id
-        grpParams.append(0); // subid
-        grpParams.append(0); // chIdx
 
         treeModel->setPathData(group->name(), grpParams);
     }
 }
 
 void FixtureManager::updateGroupsTree(Doc *doc, TreeModel *treeModel, QString searchFilter,
-                                      bool showChannels, QList<SceneValue> checkedChannels)
+                                      int showFlags, QList<SceneValue> checkedChannels)
 {
     if (doc == NULL || treeModel == NULL)
         return;
 
-    bool expandAll = searchFilter.length() >= SEARCH_MIN_CHARS;
+    QStringList uniNames = doc->inputOutputMap()->universeNames();
+    QList<Fixture*> fixtureList = doc->fixtures();
 
     treeModel->clear();
 
-    QStringList uniNames = doc->inputOutputMap()->universeNames();
+    if (showFlags & ShowCheckBoxes)
+        treeModel->setCheckable(true);
+    else
+        treeModel->setCheckable(false);
 
-    // add Fixture Groups first
-    for (FixtureGroup *grp : doc->fixtureGroups()) // C++11
-        addFixtureGroupTreeNode(doc, treeModel, grp, searchFilter, showChannels, checkedChannels);
+    if (showFlags & ShowGroups)
+    {
+        // add Fixture Groups first
+        for (FixtureGroup *grp : doc->fixtureGroups()) // C++11
+            addFixtureGroupTreeNode(doc, treeModel, grp, searchFilter, showFlags, checkedChannels);
+    }
 
-    QList<Fixture*> origList = doc->fixtures();
     // sort the fixture list by address and not by ID
-    std::sort(origList.begin(), origList.end(), compareFixtures);
+    std::sort(fixtureList.begin(), fixtureList.end(), compareFixtures);
 
     // add the current universes as groups
-    for (Fixture *fixture : origList) // C++11
+    for (Fixture *fixture : fixtureList) // C++11
     {
         if (fixture->universe() >= (quint32)uniNames.count())
             continue;
 
-        int matchFound = 0;
-        if (searchFilter.length() < SEARCH_MIN_CHARS || fixture->name().toLower().contains(searchFilter))
-            matchFound |= FixtureMatch;
+        QString universeName = uniNames.at(fixture->universe());
+        int matchMask = 0;
 
-        QString chPath = QString("%1%2%3").arg(uniNames.at(fixture->universe())).arg(TreeModel::separator()).arg(fixture->name());
-        QLCFixtureMode *mode = fixture->fixtureMode();
-        if (mode == NULL)
-            continue;
-
-        if (showChannels)
-        {
-            int chIdx = 0;
-            for (QLCChannel *channel : mode->channels()) // C++11
-            {
-                if ((matchFound & FixtureMatch) || searchFilter.length() < SEARCH_MIN_CHARS ||
-                    channel->name().toLower().contains(searchFilter))
-                {
-                    int flags = expandAll ? TreeModel::Expanded : 0;
-                    if (checkedChannels.contains(SceneValue(fixture->id(), chIdx)))
-                        flags |= TreeModel::Checked;
-
-                    QVariantList chParams;
-                    chParams.append(QVariant::fromValue(NULL)); // classRef
-                    chParams.append(App::ChannelDragItem); // type
-                    chParams.append(fixture->id()); // id
-                    chParams.append(fixture->universe()); // subid
-                    chParams.append(chIdx); // chIdx
-                    treeModel->addItem(channel->name(), chParams, chPath, flags);
-                    matchFound |= ChannelMatch;
-                }
-                chIdx++;
-            }
-        }
-
-        if (matchFound)
-        {
-            // when all the channel 'leaves' have been added, set the parent node data
-            QVariantList fxParams;
-            fxParams.append(QVariant::fromValue(fixture)); // classRef
-            fxParams.append(App::FixtureDragItem); // type
-            fxParams.append(fixture->id()); // id
-            fxParams.append(fixture->universe()); // subid
-            fxParams.append(0); // chIdx
-
-            if (showChannels)
-                treeModel->setPathData(chPath, fxParams);
-            else
-                treeModel->addItem(fixture->name(), fxParams, uniNames.at(fixture->universe()), expandAll ? TreeModel::Expanded : 0);
-        }
+        addFixtureNode(doc, treeModel, fixture, universeName, fixture->universe(),
+                       matchMask, searchFilter, showFlags, checkedChannels);
     }
 
     for (Universe *universe : doc->inputOutputMap()->universes())
@@ -554,8 +700,6 @@ void FixtureManager::updateGroupsTree(Doc *doc, TreeModel *treeModel, QString se
         uniParams.append(QVariant::fromValue(universe)); // classRef
         uniParams.append(App::UniverseDragItem); // type
         uniParams.append(universe->id()); // id
-        uniParams.append(0); // subid
-        uniParams.append(0); // chIdx
 
         treeModel->setPathData(universe->name(), uniParams);
     }
@@ -689,7 +833,6 @@ bool FixtureManager::addRGBPanel(QString name, qreal xPos, qreal yPos)
 
     QLCFixtureDef *rowDef = NULL;
     QLCFixtureMode *rowMode = NULL;
-    MonitorProperties *monProps = m_doc->monitorProperties();
     int currRow = 0;
     int rowInc = 1;
     int xPosStart = 0;
@@ -792,9 +935,9 @@ bool FixtureManager::addRGBPanel(QString name, qreal xPos, qreal yPos)
 
         QVector3D pos;
         QVector3D rot;
-        float gridUnits = monProps->gridUnits() == MonitorProperties::Meters ? 1000.0 : 304.8;
+        float gridUnits = m_monProps->gridUnits() == MonitorProperties::Meters ? 1000.0 : 304.8;
 
-        switch (monProps->pointOfView())
+        switch (m_monProps->pointOfView())
         {
             case MonitorProperties::TopView:
                 pos = QVector3D(xPos, 0, yPos);
@@ -805,17 +948,17 @@ bool FixtureManager::addRGBPanel(QString name, qreal xPos, qreal yPos)
                 rot.setX(180);
             break;
             case MonitorProperties::RightSideView:
-                pos = QVector3D(0, yPos, (monProps->gridSize().z() * gridUnits) - xPos);
+                pos = QVector3D(0, yPos, (m_monProps->gridSize().z() * gridUnits) - xPos);
                 rot.setX(180);
             break;
             default:
-                pos = QVector3D(xPos, (monProps->gridSize().y() * gridUnits) - yPos, 0);
+                pos = QVector3D(xPos, (m_monProps->gridSize().y() * gridUnits) - yPos, 0);
                 rot.setZ(180);
             break;
         }
-        monProps->setFixturePosition(fxi->id(), 0, 0, pos);
+        m_monProps->setFixturePosition(fxi->id(), 0, 0, pos);
         if (displacement == Snake && i % 2)
-            monProps->setFixtureRotation(fxi->id(), 0, 0, rot);
+            m_monProps->setFixtureRotation(fxi->id(), 0, 0, rot);
         emit newFixtureCreated(fxi->id(), pos.x(), pos.y(), pos.z());
         yPos += (qreal)phyHeight;
         currRow += rowInc;
@@ -1136,7 +1279,7 @@ void FixtureManager::setCapabilityCounter(QString capName, int value)
         capItem->setProperty("counter", value);
 }
 
-QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID, bool enable)
+QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 itemID, int headIndex, bool enable)
 {
     int capDelta = enable ? 1 : -1;
     bool hasDimmer = false, hasColor = false, hasPosition = false;
@@ -1145,16 +1288,31 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
     int origColorsMask = m_colorsMask;
     QLCPhysical phy;
 
+    QList<quint32> channelIndices;
     QMultiHash<int, SceneValue> channelsMap;
+    quint32 fixtureID = FixtureUtils::itemFixtureID(itemID);
 
-    Fixture *fixture = m_doc->fixture(fxID);
+    Fixture *fixture = m_doc->fixture(fixtureID);
     if (fixture == NULL)
         return channelsMap;
+
+    // build a list of channel indices depending on
+    // if a head has to be considered or not
+    if (headIndex == -1)
+    {
+        for (quint32 i = 0; i < fixture->channels(); i++)
+            channelIndices.append(i);
+    }
+    else
+    {
+        QLCFixtureHead head = fixture->head(headIndex);
+        channelIndices = head.channels();
+    }
 
     if (fixture->fixtureMode() != NULL)
         phy = fixture->fixtureMode()->physical();
 
-    for (quint32 ch = 0; ch < fixture->channels(); ch++)
+    for (quint32 ch : channelIndices)
     {
         const QLCChannel* channel(fixture->channel(ch));
         if(channel == NULL)
@@ -1172,7 +1330,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
                 {
                     case QLCChannel::NoColour:
                         hasDimmer = true;
-                        channelsMap.insert(chType, SceneValue(fxID, ch));
+                        channelsMap.insert(chType, SceneValue(fixtureID, ch));
                     break;
                     case QLCChannel::Red:
                     case QLCChannel::Green:
@@ -1187,7 +1345,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
                     case QLCChannel::Indigo:
                         hasColor = true;
                         updateColorsMap(col, capDelta);
-                        channelsMap.insert(chType, SceneValue(fxID, ch));
+                        channelsMap.insert(chType, SceneValue(fixtureID, ch));
                     break;
                     default: break;
                 }
@@ -1212,7 +1370,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
 
                     qDebug() << "Fixture" << fixture->name() << "Pan:" << panDeg << ", Tilt:" << tiltDeg;
                 }
-                channelsMap.insert(chType, SceneValue(fxID, ch));
+                channelsMap.insert(chType, SceneValue(fixtureID, ch));
             }
             break;
             case QLCChannel::Shutter:
@@ -1222,7 +1380,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
                 {
                     if (m_presetsCache.contains(channel) == false)
                     {
-                        m_presetsCache[channel] = fxID;
+                        m_presetsCache[channel] = fixtureID;
                         emit shutterChannelsChanged();
                     }
                 }
@@ -1231,7 +1389,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
                     m_presetsCache.remove(channel);
                     emit shutterChannelsChanged();
                 }
-                channelsMap.insert(chType, SceneValue(fxID, ch));
+                channelsMap.insert(chType, SceneValue(fixtureID, ch));
             }
             break;
             case QLCChannel::Colour:
@@ -1241,7 +1399,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
                 {
                     if (m_presetsCache.contains(channel) == false)
                     {
-                        m_presetsCache[channel] = fxID;
+                        m_presetsCache[channel] = fixtureID;
                         emit colorWheelChannelsChanged();
                     }
                 }
@@ -1250,7 +1408,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
                     m_presetsCache.remove(channel);
                     emit colorWheelChannelsChanged();
                 }
-                channelsMap.insert(chType, SceneValue(fxID, ch));
+                channelsMap.insert(chType, SceneValue(fixtureID, ch));
             }
             break;
             case QLCChannel::Gobo:
@@ -1260,7 +1418,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
                 {
                     if (m_presetsCache.contains(channel) == false)
                     {
-                        m_presetsCache[channel] = fxID;
+                        m_presetsCache[channel] = fixtureID;
                         emit goboChannelsChanged();
                     }
                 }
@@ -1269,7 +1427,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
                     m_presetsCache.remove(channel);
                     emit goboChannelsChanged();
                 }
-                channelsMap.insert(chType, SceneValue(fxID, ch));
+                channelsMap.insert(chType, SceneValue(fixtureID, ch));
             }
             break;
             case QLCChannel::Beam:
@@ -1286,7 +1444,7 @@ QMultiHash<int, SceneValue> FixtureManager::getFixtureCapabilities(quint32 fxID,
                     if (maxDeg > m_maxBeamDegrees)
                         m_maxBeamDegrees = maxDeg;
                 }
-                channelsMap.insert(chType, SceneValue(fxID, ch));
+                channelsMap.insert(chType, SceneValue(fixtureID, ch));
             }
             break;
             default:
